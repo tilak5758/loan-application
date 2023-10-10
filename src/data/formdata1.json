@@ -1,0 +1,56 @@
+{
+    "form_def": {
+      "components": [
+        {
+          "label": "Fullname",
+          "type": "textfield",
+          "id": "Field_0uiwkmt",
+          "key": "fullname",
+          "validate": {
+            "required": true,
+            "validationType": "email"
+          },
+          "properties": {
+            "key1": "value"
+          }
+        },
+        {
+          "subtype": "date",
+          "dateLabel": "Date of birth",
+          "label": "Date time",
+          "type": "datetime",
+          "id": "Field_1t3z1gv",
+          "key": "dob",
+          "validate": {
+            "required": true
+          }
+        },
+        {
+          "label": "Address",
+          "type": "textfield",
+          "id": "Field_newfield",
+          "key": "address",
+          "validate": {
+            "required": true
+          }
+        },
+        {
+          "label": "Submit",  
+          "type": "button",   
+          "id": "Field_submit",
+          "key": "submit",
+          "action": "submit"  
+        }
+      ],
+      "type": "default",
+      "id": "Form_1en3shj",
+      "exporter": {
+        "name": "Camunda Modeler",
+        "version": "5.9.0"
+      },
+      "executionPlatform": "Camunda Platform",
+      "executionPlatformVersion": "7.18.0",
+      "schemaVersion": 7
+    }
+  }
+  

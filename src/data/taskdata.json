@@ -1,0 +1,38 @@
+[
+    {
+        "taskForm": {
+            "task_id": 123,
+            "purpose": "loan requested",
+            "status": "pending"
+        },
+        "taskVariables": {
+            "fullname": "Mr. ABC",
+            "address": "123 Main St",
+            "loanAmount": 50000
+        }
+    },
+    {
+        "taskForm": {
+            "task_id": 124,
+            "purpose": "car loan application",
+            "status": "approved"
+        },
+        "taskVariables": {
+            "fullname": "Mrs. XYZ",
+            "address": "456 Elm St",
+            "loanAmount": 75000
+        }
+    },
+    {
+        "taskForm": {
+            "task_id": 125,
+            "purpose": "credit",
+            "status": "rejected"
+        },
+        "taskVariables": {
+            "fullname": "Mr. PQR",
+            "address": "789 Oak St",
+            "loanAmount": 10000
+        }
+    }
+]
