@@ -22,109 +22,7 @@ app.use("/api", loanApplicationRoutes);
 app.use("/api",task)
 
 
-app.post("/deploy-bpmn", async (req: Request, res: Response) => {
-  try {
-    // Camunda credentials
-    const camundaApiUrl: string =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username: string = process.env.CAMUNDA_USERNAME || "demo";
-    const password: string = process.env.CAMUNDA_PASSWORD || "demo";
-    // BPMN process file path
-    const bpmnFilePath: string = __dirname + "/../process/process_loan.bpmn";
-    const deploymentConfig: any = req.body;
 
-    // Read BPMN file as a buffer
-    const bpmnFileData: Buffer = fs.readFileSync(bpmnFilePath);
-
-    // Authenticate with Camunda API
-    const authHeader: string = `Basic ${Buffer.from(
-      `${username}:${password}`
-    ).toString("base64")}`;
-
-    // Create a FormData object
-    const formData = new FormData();
-
-    // Append the BPMN file with the correct filename
-    formData.append("data", bpmnFileData, {
-      filename: "process_loan.bpmn",
-    });
-
-    // Append other form fields from deploymentConfig
-    for (const key in deploymentConfig) {
-      if (deploymentConfig.hasOwnProperty(key)) {
-        formData.append(key, deploymentConfig[key]);
-      }
-    }
-
-    // Deploy the BPMN process
-    const response = await axios.post(
-      `${camundaApiUrl}/deployment/create`,
-      formData,
-      {
-        headers: {
-          ...formData.getHeaders(), // Set the correct headers for FormData
-          Authorization: authHeader,
-        },
-      }
-    );
-
-    console.log("Deployment ID:", response.data.id);
-    console.log("Deployment Name:", response.data.name);
-
-    res.status(200).json({ message: "BPMN process deployed successfully" });
-  } catch (error) {
-    console.error("Error deploying BPMN process:", error);
-    res.status(500).json({ error: "Failed to deploy BPMN process" });
-  }
-});
-
-app.post("/process-start/:processKey", async (req:Request, res:Response) => {
-  try {
-    const camundaApiUrl: string =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username: string = process.env.CAMUNDA_USERNAME || "demo";
-    const password: string = process.env.CAMUNDA_PASSWORD || "demo";
-    const processKey = req.query.processKey;
-
-    if (!processKey) {
-      throw new Error("Process key is missing or empty.");
-    }
-
-    const startProcessUrl = `${camundaApiUrl}/process-definition/key/${processKey}/start`;
-
-    // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString(
-      "base64"
-    )}`;
-
-    // Make a POST request to start the process instance
-    const response = await axios.post(
-      startProcessUrl,
-      req.body, // Pass request body as process variables
-      {
-        headers: {
-          Authorization: authHeader,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (response.status === 200) {
-      return res.status(200).json({
-        message: "BPMN process instance started successfully",
-        processInstanceId: response.data.id,
-        // Add more response data as needed
-      });
-    } else {
-      throw new Error(
-        `Failed to start process instance. Camunda response: ${response.status}`
-      );
-    }
-  } catch (error: any) {
-    console.error("Error starting process instance:", error.message);
-    res.status(500).json({ error: "Failed to start process instance" });
-  }
-});
 
 app.get("/get-tasks", async (req:Request, res) => {
   try {
@@ -188,13 +86,10 @@ app.post("/complete-task/:taskId", async (req, res) => {
     // Define the URL to complete the task
     const completeTaskUrl = `${camundaApiUrl}/task/${taskId}/complete`;
 
+    const data = req.body;
     // Define the request body with variables
     const requestBody = {
-      variables: {
-        aVariable: { value: "aStringValue" },
-        anotherVariable: { value: 42 },
-        aThirdVariable: { value: true }
-      }
+      variables: data
     };
 
     // Make a POST request to complete the task with the request body

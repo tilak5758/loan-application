@@ -1,5 +1,5 @@
 import express from 'express';
-import {  addTaskForm1, getTaskForm, getTaskForm1 } from '../controller/taskController';
+import {  addTaskForm1, bpmnStartProcess, deployBpmnController, getProcessInstanceVariables, getTaskForm, getTaskForm1, getTasks } from '../controller/taskController';
 import { getTaskDetails } from '../controller/taskController';
 import { addTaskForm } from '../controller/taskController';
 
@@ -11,4 +11,8 @@ router.post('/add-task-form1/:task_key/:task_id',addTaskForm1)
 router.get('/task-detail1/:task_key/:task_id', getTaskForm1);
 // router.get('/task-detail/:task_key/:task_id', getTaskForm);
 
+router.post('/bpmndeploy',deployBpmnController);
+router.post('/bpmnstartprocess/:processKey',bpmnStartProcess);
+router.get('/gettasks/:processDefinitionKey',getTasks)
+router.get('/getvariables/:processInstanceId', getProcessInstanceVariables);
 export default router;
