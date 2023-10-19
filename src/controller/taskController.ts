@@ -755,9 +755,80 @@ export const getHistoricIdentityLink = async (req: Request, res: Response) => {
   }
 };
 
+export const getIdentityGroup = async (req: Request, res: Response) => {
+  try {
+    const camundaApiUrl =
+      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
+    const username = process.env.CAMUNDA_USERNAME || "demo";
+    const password = process.env.CAMUNDA_PASSWORD || "demo";
+
+    // Retrieve the 'assignee' from the query parameter
+    const assignee = req.query.assignee as string;
+
+    if (!assignee) {
+      throw new Error("Assignee parameter is missing or empty.");
+    }
+
+    // URL for retrieving user groups
+    const userGroupsUrl = `${camundaApiUrl}/identity/groups?userId=${assignee}`;
+
+    // Authenticate with Camunda API using Basic Authentication
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+
+    // Make an HTTP GET request to retrieve user groups
+    const response = await axios.get(userGroupsUrl, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
+    if (response.status === 200) {
+      // Handle the response as needed
+      res.status(200).json(response.data);
+    } else {
+      throw new Error(`Failed to retrieve user groups. Camunda response: ${response.status}`);
+    }
+  } catch (error: any) {
+    console.error("Error retrieving user groups:", error.message);
+    res.status(500).json({ error: "Failed to retrieve user groups" });
+  }
+};
 
 
+export const userLogin = async (req: Request, res: Response) => {
+  try {
+    const camundaApiUrl =
+      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
+    const username = process.env.CAMUNDA_USERNAME || "demo";
+    const password = process.env.CAMUNDA_PASSWORD || "demo";
 
+    // Data to be sent in the request body
+    const requestData = {
+      username: username,
+      password: password,
+    };
+
+    // URL for identity verification
+    const identityVerifyUrl = `${camundaApiUrl}/identity/verify`;
+
+    // Make an HTTP POST request to verify the identity
+    const response = await axios.post(identityVerifyUrl, requestData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.status === 200) {
+      // Handle the response as needed
+      res.status(200).json(response.data);
+    } else {
+      throw new Error(`Identity verification failed. Camunda response: ${response.status}`);
+    }
+  } catch (error: any) {
+    console.error("Error verifying identity:", error.message);
+    res.status(500).json({ error: "Identity verification failed" });
+  }
+};
 
 
 

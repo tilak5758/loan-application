@@ -1,5 +1,5 @@
 import express from 'express';
-import {getHistoryTasksProcessInstanceForUser ,  addTaskForm1, bpmnStartProcess, claimTask, completeTaskById, deployBpmnController, getHistoryTasksForUser, getProcessInstanceVariables, getTaskDetailById, getTaskForm, getTaskForm1, getTasks, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink } from '../controller/taskController';
+import {getHistoryTasksProcessInstanceForUser ,  addTaskForm1, bpmnStartProcess, claimTask, completeTaskById, deployBpmnController, getHistoryTasksForUser, getProcessInstanceVariables, getTaskDetailById, getTaskForm, getTaskForm1, getTasks, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin } from '../controller/taskController';
 import { getTaskDetails } from '../controller/taskController';
 import { addTaskForm } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
@@ -32,4 +32,6 @@ router.post("/createtaskcomment",createTaskComment)
 router.get("/gettaskcomment",getTaskComment)
 router.get("/gethistoryoperation",getHistoryOperation)
 router.get("/gethistoryidentitylink",getHistoricIdentityLink)
+router.get("/identitygroup",getIdentityGroup)
+router.post("/login",userLogin)
 export default router;
