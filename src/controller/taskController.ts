@@ -1,307 +1,8 @@
 // controllers/taskController.ts
 import { Request, Response, response } from 'express';
-import { Task } from '../entities/Task';
-import fs from 'fs';
 import axios from 'axios';
-import FormData from 'form-data';
-import taskdata from "../data/taskdata.json";
-import formdata from "../data/formdata.json";
-import formdata1 from "../data/formdata1.json"
 
-const sampleData: Task[] = taskdata;
-const taskFormData: Record<string, any> = {};
-
-export const getTaskDetails = (req: Request, res: Response): void => {
-  const task_id = parseInt(req.query.task_id as string);
-  const purpose = req.query.purpose as string;
-
-  const task = sampleData.filter(
-    (t) => t.taskForm.task_id === task_id && t.taskForm.purpose === purpose
-  );
-
-  if (task) {
-    res.status(201).json(task);
-  } else {
-    res.status(404).json({ error: 'Task not found' });
-  }
-};
-
-
-export function addTaskForm(req: Request, res: Response): void {
-  const taskKey = req.params.task_key;
-  const taskId = req.params.task_id;
-
-  const data = req.body;
-
-  const formData = JSON.parse(JSON.stringify(formdata));
-
-  const taskIdentifier = `${taskKey}-${taskId}`;
-
-  const combinedData = {
-    ...data,
-    ...formData,
-  };
-
-  taskFormData[taskIdentifier] = combinedData;
-
-  res.json({ combinedData,message: 'Form data added successfully' });
-}
-
-export function addTaskForm1(req: Request, res: Response): void {
-  const taskKey = req.params.task_key;
-  const taskId = req.params.task_id;
-
-  const data = req.body;
-
-  const formData = JSON.parse(JSON.stringify(formdata1));
-
-  const taskIdentifier = `${taskKey}-${taskId}`;
-
-  const combinedData = {
-    ...data,
-    ...formData,
-  };
-
-  taskFormData[taskIdentifier] = combinedData;
-
-  res.json({ combinedData,message: 'Form data added successfully' });
-}
-
-export function getTaskForm(req: Request, res: Response): void {
-  const taskKey = req.params.task_key;
-  const taskId = req.params.task_id;
-  const taskIdentifier = `${taskKey}-${taskId}`;
-   
-
-  if (taskIdentifier in taskFormData) {
-    const formData = taskFormData[taskIdentifier];
-    res.json({formData}); 
-  } else {
-    res.status(404).json({ error: 'Form data not found for the task' }); 
-  }
-}
-
-export function getTaskForm1(req: Request, res: Response): void {
-  const taskKey = req.params.task_key;
-  const taskId = req.params.task_id;
-  const taskIdentifier = `${taskKey}-${taskId}`;
-   
-
-  if (taskIdentifier in taskFormData) {
-    const formData = taskFormData[taskIdentifier];
-    res.json({formData}); 
-  } else {
-    res.status(404).json({ error: 'Form data not found for the task' }); 
-  }
-}
-
-// Task process controller
-export const deployBpmnController = async (req: Request, res: Response): Promise<void> => {
-  try {
-    // Camunda credentials
-    const camundaApiUrl: string = process.env.CAMUNDA_API_URL || 'http://localhost:8080/engine-rest';
-    const username: string = process.env.CAMUNDA_USERNAME || 'demo';
-    const password: string = process.env.CAMUNDA_PASSWORD || 'demo';
-
-    // BPMN process file path
-    const bpmnFilePath: string = __dirname + '/../process/process_loan.bpmn';
-
-    // Read BPMN file as a buffer
-    const bpmnFileData: Buffer = fs.readFileSync(bpmnFilePath);
-
-    const taskVariables = {
-      variableName1: 'value1',
-      variableName2: 'value2',
-      // Add more task variables as needed
-    };
-
-    // Authenticate with Camunda API
-    const authHeader: string = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
-
-    // Create a FormData object
-    const formData = new FormData();
-
-    // Append the BPMN file with the correct filename
-    formData.append('data', bpmnFileData, {
-      filename: 'process_loan.bpmn',
-    });
-
-    // Append other form fields from deploymentConfig (assuming you have them in req.body)
-    for (const key in req.body) {
-      if (req.body.hasOwnProperty(key)) {
-        formData.append(key, req.body[key]);
-      }
-    }
-
-    // Deploy the BPMN process
-    const response = await axios.post(
-      `${camundaApiUrl}/deployment/create`,
-      formData,
-      {
-        headers: {
-          ...formData.getHeaders(), // Set the correct headers for FormData
-          Authorization: authHeader,
-        },
-      }
-    );
-
-    console.log('Deployment ID:', response.data.id);
-    // console.log('Deployment Name:', response.data.name);
-
-    res.status(200).json({ message: 'BPMN process deployed successfully' });
-  } catch (error) {
-    console.error('Error deploying BPMN process:', error);
-    res.status(500).json({ error: 'Failed to deploy BPMN process' });
-  }
-};
-
-export const bpmnStartProcess = async (req: any, res: any) => {
-  try {
-    // Move the code from your existing route handler here
-
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
-    const processKey = req.params.processKey;
-
-    if (!processKey) {
-      throw new Error("Process key is missing or empty.");
-    }
-
-    const startProcessUrl = `${camundaApiUrl}/process-definition/key/${processKey}/start`;
-
-    // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
-    
-    // Define the variables you want to send with the process start
-    const requestBody = {
-        "variables": {
-          "name": {
-            "value": "tilak",
-            "type": "String"
-          }
-        },
-      
-    };
-  
-    const response = await axios.post(startProcessUrl, requestBody, {
-      headers: {
-        Authorization: authHeader,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.status === 200) {
-      res.status(200).json({
-        message: "BPMN process instance started successfully",
-        processInstanceId: response.data.id,
-      
-      });
-    } else {
-      throw new Error(`Failed to start the process instance. Camunda response: ${response.status}`);
-    }
-  } catch (error:any) {
-    console.error("Error starting the process instance:", error.message);
-    res.status(500).json({ error: "Failed to start the process instance" });
-  }
-};
-
-export const getTasks = async (req: Request, res: Response) => {
-  try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
-
-    // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
-
-    // Get the processDefinitionKey from the query parameters
-    const processDefinitionKey = req.query.processDefinitionKey as string;
-
-    if (!processDefinitionKey) {
-      throw new Error("Process definition key is missing or empty.");
-    }
-
-    // Define the URL to retrieve tasks with the specified process definition key
-    const tasksUrl = `${camundaApiUrl}/task?processDefinitionKey=${processDefinitionKey}`;
-
-    // Make a GET request to retrieve tasks
-    const response = await axios.get(tasksUrl, {
-      headers: {
-        Authorization: authHeader,
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.status === 200) {
-      const tasks = response.data;
-
-      // Process the retrieved tasks as needed
-      res.status(200).json(tasks);
-    } else {
-      throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
-    }
-  } catch (error:any) {
-    console.error("Error retrieving tasks:", error.message);
-    res.status(500).json({ error: "Failed to retrieve tasks" });
-  }
-};
-
-export const getProcessInstanceVariables = async (req: Request, res: Response) => {
-  try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || 'http://localhost:8080/engine-rest';
-    const username = process.env.CAMUNDA_USERNAME || 'demo';
-    const password = process.env.CAMUNDA_PASSWORD || 'demo';
-    const processInstanceId = req.query.processInstanceId as string;
-
-    if (!processInstanceId) {
-      throw new Error('Process instance ID is missing or empty.');
-    }
-
-    // Endpoint for getting process instance variables
-    const variablesUrl = `${camundaApiUrl}/process-instance/${processInstanceId}/variables`;
-
-    // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
-
-    // Make a GET request to retrieve process instance variables
-    const response = await axios.get(variablesUrl, {
-      headers: {
-        Authorization: authHeader,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (response.status === 200) {
-      const variables = response.data as Record<string, any>;
-
-      if (typeof variables === 'object') {
-        const convertedVariables: Record<string, any> = {};
-
-        for (const variableName in variables) {
-          if (variables[variableName].type === 'Json') {
-            convertedVariables[variableName] = JSON.parse(variables[variableName].value);
-          } else {
-            convertedVariables[variableName] = variables[variableName].value;
-          }
-        }
-
-        return res.status(200).json({
-          message: 'Process instance variables retrieved successfully',
-          variables: convertedVariables,
-        });
-      } else {
-        throw new Error(`Invalid response format from Camunda API`);
-      }
-    } else {
-      throw new Error(`Failed to retrieve process instance variables. Camunda response: ${response.status}`);
-    }
-  } catch (error: any) {
-    console.error('Error retrieving process instance variables:', error.message);
-    res.status(500).json({ error: 'Failed to retrieve process instance variables' });
-  }
-};
+import { getCamundaApiUrl, getCamundaCredentials } from '../common';
 
 
 
@@ -309,10 +10,8 @@ export const getProcessInstanceVariables = async (req: Request, res: Response) =
 // Task controller
 export const getTasksForUser = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Retrieve the 'assignee' from the query parameter
     const assignee = req.query.assignee as string;
@@ -344,12 +43,10 @@ export const getTasksForUser = async (req: Request, res: Response) => {
   }
 };
 
-export const getTaskDetailById = async (req:Request, res:Response) => {
+export const getTaskDetailById = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Retrieve the 'taskInstanceId' from the query parameter
     const taskInstanceId = req.query.taskInstanceId as string;
@@ -392,17 +89,16 @@ export const getTaskDetailById = async (req:Request, res:Response) => {
     } else {
       throw new Error(`Failed to retrieve task details. Camunda response: ${taskDetailResponse.status}`);
     }
-  } catch (error:any) {
+  } catch (error: any) {
     console.error("Error retrieving task details:", error.message);
     res.status(500).json({ error: "Failed to retrieve task details" });
   }
 };
 
-export const completeTaskById = async (req:Request, res:Response) => {
+export const completeTaskById = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || 'http://localhost:8080/engine-rest';
-    const username = process.env.CAMUNDA_USERNAME || 'demo';
-    const password = process.env.CAMUNDA_PASSWORD || 'demo';
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     const taskInstanceId = req.query.taskInstanceId as string;
 
@@ -434,7 +130,7 @@ export const completeTaskById = async (req:Request, res:Response) => {
       console.error(`Failed to complete task. Camunda response: ${response.status}`);
       return res.status(500).json({ error: 'Failed to complete the task' });
     }
-  } catch (error:any) {
+  } catch (error: any) {
     console.error('Error completing the task:', error.message);
     return res.status(500).json({ error: 'Failed to complete the task' });
   }
@@ -442,9 +138,8 @@ export const completeTaskById = async (req:Request, res:Response) => {
 
 export const listTasksByCandidateGroup = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || 'http://localhost:8080/engine-rest';
-    const username = process.env.CAMUNDA_USERNAME || 'demo';
-    const password = process.env.CAMUNDA_PASSWORD || 'demo';
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     const candidateGroup = req.query.candidateGroup as string;
 
@@ -483,10 +178,9 @@ export const listTasksByCandidateGroup = async (req: Request, res: Response) => 
 
 export const claimTask = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || 'http://localhost:8080/engine-rest';
-    const username = process.env.CAMUNDA_USERNAME || 'demo';
-    const password = process.env.CAMUNDA_PASSWORD || 'demo';
-    
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
+
     const taskId = req.query.taskId;
     const claimTaskUrl = `${camundaApiUrl}/task/${taskId}/claim`;
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
@@ -507,7 +201,7 @@ export const claimTask = async (req: Request, res: Response) => {
       });
 
       if (response.status === 204) {
-        return res.status(204).send({message:"task claim successfully"});
+        return res.status(204).send({ message: "task claim successfully" });
       } else {
         return res.status(response.status).json({ error: 'Failed to claim the task' });
       }
@@ -522,9 +216,8 @@ export const claimTask = async (req: Request, res: Response) => {
 
 export const unclaimTask = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || 'http://localhost:8080/engine-rest';
-    const username = process.env.CAMUNDA_USERNAME || 'demo';
-    const password = process.env.CAMUNDA_PASSWORD || 'demo';
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     const taskId = req.query.taskId;
     const unclaimTaskUrl = `${camundaApiUrl}/task/${taskId}/unclaim`;
@@ -549,10 +242,8 @@ export const unclaimTask = async (req: Request, res: Response) => {
 
 export const getHistoryTasksForUser = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Retrieve the 'userId' from the request body
     const assignee = req.query.assignee as string;
@@ -568,7 +259,7 @@ export const getHistoryTasksForUser = async (req: Request, res: Response) => {
       headers: {
         Authorization: authHeader,
       },
-      
+
     });
 
     if (response.status === 200) {
@@ -584,10 +275,8 @@ export const getHistoryTasksForUser = async (req: Request, res: Response) => {
 
 export const getHistoryTasksProcessInstanceForUser = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Retrieve the 'assignee' from the request query parameters
     const assignee = req.query.assignee as string;
@@ -618,10 +307,8 @@ export const getHistoryTasksProcessInstanceForUser = async (req: Request, res: R
 
 export const createTaskComment = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Retrieve the task ID and comment data from the request body
     const taskId = req.body.taskId as string;
@@ -663,9 +350,8 @@ export const createTaskComment = async (req: Request, res: Response) => {
 
 export const getTaskComment = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Retrieve the task ID and comment ID from the query parameters
     const taskId = req.query.taskId as string;
@@ -699,9 +385,8 @@ export const getTaskComment = async (req: Request, res: Response) => {
 
 export const getHistoryOperation = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Build the URL and authorization header for the Camunda API
     const apiUrl = `${camundaApiUrl}/history/user-operation`;
@@ -727,9 +412,8 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
 
 export const getHistoricIdentityLink = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Build the URL for the Camunda API endpoint you want to access
     const apiUrl = `${camundaApiUrl}/history/identity-link-log`;
@@ -757,10 +441,8 @@ export const getHistoricIdentityLink = async (req: Request, res: Response) => {
 
 export const getIdentityGroup = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Retrieve the 'assignee' from the query parameter
     const assignee = req.query.assignee as string;
@@ -797,10 +479,9 @@ export const getIdentityGroup = async (req: Request, res: Response) => {
 
 export const userLogin = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl =
-      process.env.CAMUNDA_API_URL || "http://localhost:8080/engine-rest";
-    const username = process.env.CAMUNDA_USERNAME || "demo";
-    const password = process.env.CAMUNDA_PASSWORD || "demo";
+   // Use the common functionality
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
 
     // Data to be sent in the request body
     const requestData = {

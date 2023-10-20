@@ -1,37 +1,46 @@
 import express from 'express';
-import {getHistoryTasksProcessInstanceForUser ,  addTaskForm1, bpmnStartProcess, claimTask, completeTaskById, deployBpmnController, getHistoryTasksForUser, getProcessInstanceVariables, getTaskDetailById, getTaskForm, getTaskForm1, getTasks, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin } from '../controller/taskController';
-import { getTaskDetails } from '../controller/taskController';
-import { addTaskForm } from '../controller/taskController';
+import {getHistoryTasksProcessInstanceForUser , claimTask, completeTaskById, getHistoryTasksForUser, getTaskDetailById, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
+import { bpmnStartProcess, deployBpmnController, getProcessInstanceVariables, getTasks } from '../controller/Process';
+import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1 } from '../controller/formController';
 
 
 const router = express.Router();
 
-router.get('/task/detail', getTaskDetails);
+// form routes
+router.get('/task/detail',getTaskDetails);
 router.post('/add-task-form/:task_key/:task_id', addTaskForm);
-
 router.post('/add-task-form1/:task_key/:task_id',addTaskForm1)
-router.get('/task-detail1/:task_key/:task_id', getTaskForm1);
-router.get('/task-detail/:task_key/:task_id', getTaskForm);
+router.get('/task-detail1/:task_key/:task_id', getTaskForm);
+router.get('/task-detail/:task_key/:task_id', getTaskForm1);
 
-router.post('/bpmndeploy',deployBpmnController);
-router.post('/bpmnstartprocess/:processKey',bpmnStartProcess);
-router.get('/gettasks/:processDefinitionKey',getTasks)
-router.get('/getvariables/:processInstanceId', getProcessInstanceVariables);
+// process routes
+router.post('/deploy',deployBpmnController);
+router.post('/process/start',bpmnStartProcess);
+router.get('/tasks/active',getTasks)
+router.get('/process/variables', getProcessInstanceVariables);
 
+// login route
+router.post("/login",userLogin)
+
+// task routes
 router.get("/tasks",getTasksForUser)
 router.get("/task",getTaskDetailById)
 router.post("/task/complete",completeTaskById)
-router.get('/listTasksByCandidateGroup', listTasksByCandidateGroup);
+router.get('/Tasks/candidate-group', listTasksByCandidateGroup);
 router.post("/task/claim",claimTask)
 router.post("/task/unclaim",unclaimTask)
-router.get("/historytask",getHistoryTasksForUser)
-router.get("/historytaskprocessinstance",getHistoryTasksProcessInstanceForUser );
+router.post("/task/comment",createTaskComment)
+router.get("/task/comment",getTaskComment)
 
-router.post("/createtaskcomment",createTaskComment)
-router.get("/gettaskcomment",getTaskComment)
-router.get("/gethistoryoperation",getHistoryOperation)
-router.get("/gethistoryidentitylink",getHistoricIdentityLink)
-router.get("/identitygroup",getIdentityGroup)
-router.post("/login",userLogin)
+
+// history routes
+router.get("/history/tasks",getHistoryTasksForUser)
+router.get("/history/task/processinstance",getHistoryTasksProcessInstanceForUser );
+router.get("/history/operation",getHistoryOperation)
+router.get("/history/identity-link",getHistoricIdentityLink)
+
+// identity routes
+router.get("/identity/group",getIdentityGroup)
+
 export default router;
