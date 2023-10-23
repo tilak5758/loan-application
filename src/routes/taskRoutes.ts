@@ -1,7 +1,7 @@
 import express from 'express';
-import {getHistoryTasksProcessInstanceForUser , claimTask, completeTaskById, getHistoryTasksForUser, getTaskDetailById, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin } from '../controller/taskController';
+import {getHistoryTasksProcessInstanceForUser , claimTask, completeTaskById, getHistoryTasksForUser, getTaskDetailById, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
-import { bpmnStartProcess, deployBpmnController, getProcessInstanceVariables, getTasks } from '../controller/Process';
+import { bpmnStartProcess, deployBpmnController, getProcessInstanceVariables, getTasks } from '../controller/ProcessController';
 import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1 } from '../controller/formController';
 
 
@@ -20,11 +20,20 @@ router.post('/process/start',bpmnStartProcess);
 router.get('/tasks/active',getTasks)
 router.get('/process/variables', getProcessInstanceVariables);
 
+
 // login route
 router.post("/login",userLogin)
 
 // task routes
-router.get("/tasks",getTasksForUser)
+router.get("/tasks",getTasksForUser);
+router.get("/taskdetail",getTaskDetailByProcessInstance);
+router.get("/update-json",)
+// router.put("/updatetaskdetail",updateTaskDetail)
+router.get('/update-task', updateTaskDetailByTaskDefinitionKey);
+router.get('/gettaskdata',getTaskDataByTaskDefinitionKey)
+// router.get("/update-tasks",updateTaskDetailByTaskInstanceId)
+
+
 router.get("/task",getTaskDetailById)
 router.post("/task/complete",completeTaskById)
 router.get('/Tasks/candidate-group', listTasksByCandidateGroup);
