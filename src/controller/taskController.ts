@@ -1,10 +1,10 @@
 // controllers/taskController.ts
 import { Request, Response, response } from 'express';
 import axios from 'axios';
-import formidable from 'formidable';
+
 import { getCamundaApiUrl, getCamundaCredentials } from '../common';
 import fs from 'fs'; 
-
+import path from 'path';
 
 
 
@@ -44,8 +44,10 @@ export const getTasksForUser = async (req: Request, res: Response) => {
   }
 };
 
+
 export const getTaskDetailById = async (req: Request, res: Response) => {
   try {
+    // ... (existing code for retrieving task details)
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
 
@@ -82,8 +84,10 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
 
       if (taskVariablesResponse.status === 200) {
         const taskVariables = taskVariablesResponse.data;
-        // Combine task details and task variables and send in the response
-        return res.status(200).json({ taskDetail, taskVariables });
+        const updateTaskDetailResponse = await updateTaskDetailByTaskDefinitionKey(req);
+        const mergedResponse = { taskDetail, taskVariables, ...updateTaskDetailResponse };
+
+        return res.status(200).json(mergedResponse);
       } else {
         throw new Error(`Failed to retrieve task variables. Camunda response: ${taskVariablesResponse.status}`);
       }
@@ -95,62 +99,6 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to retrieve task details" });
   }
 };
-
-
-
-
-
-// export const getTaskDetailByProcessInstance = async (req: Request, res: Response) => {
-//   try {
-//     const camundaApiUrl = getCamundaApiUrl();
-//     const { username, password } = getCamundaCredentials();
-
-//     // Retrieve the 'taskDefinitionKey' and 'processInstanceId' from the query parameters
-//     const taskDefinitionKey = req.query.taskDefinitionKey as string;
-//     const processInstanceId = req.query.processInstanceId as string;
-
-//     if (!taskDefinitionKey || !processInstanceId) {
-//       throw new Error("Task definition key and/or process instance ID query parameters are missing.");
-//     }
-
-//     // Fetch the task list for the given process instance and task definition key
-//     const taskListUrl = `${camundaApiUrl}/task?processInstanceId=${processInstanceId}&taskDefinitionKey=${taskDefinitionKey}`;
-
-//     // Authenticate with Camunda API using Basic Authentication
-//     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
-
-//     // Make an HTTP GET request to retrieve the task list
-//     const response = await axios.get(taskListUrl, {
-//       headers: {
-//         Authorization: authHeader,
-//       },
-//     });
-
-//     if (response.status === 200) {
-//       const taskList = response.data;
-
-//       if (taskList.length === 1) {
-//         const taskInstanceId = taskList[0].id;
-
-//         // Continue with fetching task details and variables as needed
-//         // (you can reuse the code for this part from the previous response examples)
-//         // ...
-
-//         res.status(200).json({ taskList });
-//       } else if (taskList.length === 0) {
-//         res.status(404).json({ error: "No tasks found matching the provided task definition key and process instance." });
-//       } else {
-//         res.status(400).json({ error: "Multiple tasks found matching the provided criteria. Please provide more specific criteria." });
-//       }
-//     } else {
-//       res.status(response.status).json({ error: "Failed to retrieve task list from Camunda API." });
-//     }
-//   } catch (error: any) {
-//     console.error("Error retrieving task details:", error.message);
-//     res.status(500).json({ error: "Failed to retrieve task details" });
-//   }
-// };
-
 
 export const updateTaskDetail = async (req: Request, res: Response) => {
   try {
@@ -261,80 +209,24 @@ export const getTaskDetailByProcessInstance = async (req: Request, res: Response
   }
 };
 
-// Import the 'fs' module to read the JSON file
-
-export const updateTaskDetailByTaskDefinitionKey = async (req: Request, res: Response) => {
+export const updateTaskDetailByTaskDefinitionKey = async (req: Request) => {
   try {
-
-    // Retrieve the 'taskDefinitionKey' from the query parameters
     const taskDefinitionKey = req.query.taskDefinitionKey as string;
+    const fileName = `${taskDefinitionKey}.json`;
 
     if (!taskDefinitionKey) {
       throw new Error("Task definition key query parameter is missing.");
     }
-
-    // Read the JSON data from the file
-    const jsonDataPath = __dirname + '/../data/formdata.json';
+    
+    const jsonDataPath = path.join(__dirname, '..', 'data', fileName);
     const updatedData = JSON.parse(fs.readFileSync(jsonDataPath, 'utf8'));
 
- // Task data has been successfully updated
-      return res.status(200).json({
-        updatedData, // Replace with your specific data
-      });
+    return { updatedData }; 
   } catch (error: any) {
     console.error("Error updating task details:", error.message);
-    res.status(500).json({ error: "Failed to update task details" });
+    return { error: "Failed to update task details" };
   }
 };
-
-
-// export const updateTaskDetailByTaskDefinitionKey = async (req: Request, res: Response) => {
-//   try {
-//     // Retrieve the 'taskDefinitionKey' from the query parameters
-//     const taskDefinitionKey = req.query.taskDefinitionKey as string;
-
-//     if (!taskDefinitionKey) {
-//       throw new Error("Task definition key query parameter is missing.");
-//     }
-
-//     // Read the JSON data from the file
-//     const jsonDataPath = __dirname + '/../data/formdata.json';
-//     const updatedData = JSON.parse(fs.readFileSync(jsonDataPath, 'utf8'));
-
-//     // Authenticate with Camunda API using Basic Authentication
-//     const camundaApiUrl = 'YOUR_CAMUNDA_API_URL'; // Replace with your Camunda API URL
-//     const username = 'YOUR_USERNAME'; // Replace with your username
-//     const password = 'YOUR_PASSWORD'; // Replace with your password
-
-//     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
-
-//     // Construct the URL to update the task data based on the taskDefinitionKey
-//     const taskUpdateUrl = `${camundaApiUrl}/task?taskDefinitionKey=${taskDefinitionKey}`;
-
-//     // Make an HTTP POST request to update the task data with authentication
-//     const response = await axios.post(taskUpdateUrl, updatedData, {
-//       headers: {
-//         Authorization: authHeader,
-//         'Content-Type': 'application/json', // Set the content type as needed
-//       },
-//     });
-
-//     if (response.status === 200) {
-//       // Task data has been successfully updated
-//       return res.status(200).json({
-//         message: "Task data updated successfully",
-//         updatedData, // Replace with your specific data
-//       });
-//     } else {
-//       return res.status(response.status).json({ error: "Failed to update task data in Camunda API." });
-//     }
-//   } catch (error: any) {
-//     console.error("Error updating task details:", error.message);
-//     return res.status(500).json({ error: "Failed to update task details" });
-//   }
-// };
-
-
 
 
 export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response) => {
@@ -376,11 +268,6 @@ export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response
     res.status(500).json({ error: "Failed to retrieve task data" });
   }
 };
-
-
-
-
-
 
 
 export const completeTaskById = async (req: Request, res: Response) => {
