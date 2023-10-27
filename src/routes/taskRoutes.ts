@@ -2,7 +2,7 @@ import express from 'express';
 import {getHistoryTasksProcessInstanceForUser , claimTask, completeTaskById, getHistoryTasksForUser, getTaskDetailById, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
 import { bpmnStartProcess, deployBpmnController, getProcessInstanceVariables, getTasks } from '../controller/ProcessController';
-import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1 } from '../controller/formController';
+import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1, getTaskRenderedFormById } from '../controller/formController';
 
 
 const router = express.Router();
@@ -13,6 +13,7 @@ router.post('/add-task-form/:task_key/:task_id', addTaskForm);
 router.post('/add-task-form1/:task_key/:task_id',addTaskForm1)
 router.get('/task-detail1/:task_key/:task_id', getTaskForm);
 router.get('/task-detail/:task_key/:task_id', getTaskForm1);
+router.get('/task/rendered-form',getTaskRenderedFormById)
 
 // process routes
 router.post('/deploy',deployBpmnController);

@@ -8,6 +8,7 @@ import path from 'path';
 
 
 
+
 // Task controller
 export const getTasksForUser = async (req: Request, res: Response) => {
   try {
@@ -43,7 +44,6 @@ export const getTasksForUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to retrieve tasks" });
   }
 };
-
 
 export const getTaskDetailById = async (req: Request, res: Response) => {
   try {
@@ -84,21 +84,38 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
 
       if (taskVariablesResponse.status === 200) {
         const taskVariables = taskVariablesResponse.data;
-        const updateTaskDetailResponse = await updateTaskDetailByTaskDefinitionKey(req);
-        const mergedResponse = { taskDetail, taskVariables, ...updateTaskDetailResponse };
-
-        return res.status(200).json(mergedResponse);
-      } else {
-        throw new Error(`Failed to retrieve task variables. Camunda response: ${taskVariablesResponse.status}`);
-      }
-    } else {
-      throw new Error(`Failed to retrieve task details. Camunda response: ${taskDetailResponse.status}`);
+        
+        // const mergedResponse = { taskDetail, taskVariables };
+        const taskDefinitionKey = taskDetail.taskDefinitionKey;
+        const updateTaskDetailResponse = await updateTaskDetailByTaskDefinitionKey(res,taskDefinitionKey);
+        return res.status(200).json({taskDetail,taskVariables,...updateTaskDetailResponse});
+      } 
     }
   } catch (error: any) {
     console.error("Error retrieving task details:", error.message);
     res.status(500).json({ error: "Failed to retrieve task details" });
   }
 };
+
+export const updateTaskDetailByTaskDefinitionKey = async (res: Response,taskDefinitionKey:any) => {
+  try {
+    // const taskDefinitionKey = req.query.taskDefinitionKey as string;
+    const fileName = `${taskDefinitionKey}.json`;
+
+    if (!taskDefinitionKey) {
+      throw new Error("Task definition key query parameter is missing.");
+    }
+    
+    const jsonDataPath = path.join(__dirname, '..', 'data', fileName);
+    const updatedData = JSON.parse(fs.readFileSync(jsonDataPath, 'utf8'));
+
+    return { updatedData }; 
+  } catch (error: any) {
+    console.error("Error updating task details:", error.message);
+    return { error: "Failed to update task details" };
+  }
+};
+
 
 export const updateTaskDetail = async (req: Request, res: Response) => {
   try {
@@ -209,24 +226,6 @@ export const getTaskDetailByProcessInstance = async (req: Request, res: Response
   }
 };
 
-export const updateTaskDetailByTaskDefinitionKey = async (req: Request) => {
-  try {
-    const taskDefinitionKey = req.query.taskDefinitionKey as string;
-    const fileName = `${taskDefinitionKey}.json`;
-
-    if (!taskDefinitionKey) {
-      throw new Error("Task definition key query parameter is missing.");
-    }
-    
-    const jsonDataPath = path.join(__dirname, '..', 'data', fileName);
-    const updatedData = JSON.parse(fs.readFileSync(jsonDataPath, 'utf8'));
-
-    return { updatedData }; 
-  } catch (error: any) {
-    console.error("Error updating task details:", error.message);
-    return { error: "Failed to update task details" };
-  }
-};
 
 
 export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response) => {
@@ -270,46 +269,62 @@ export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response
 };
 
 
+
+
 export const completeTaskById = async (req: Request, res: Response) => {
   try {
+    // Replace with your actual Camunda API URL and credentials retrieval logic
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
 
+    // Retrieve the task ID from the query parameters
     const taskInstanceId = req.query.taskInstanceId as string;
 
     if (!taskInstanceId) {
-      return res.status(400).json({ error: 'Task instance ID is missing in the query parameters' });
+      throw new Error("Task ID is missing in the request parameters.");
     }
 
-    // Create the URL to complete the task
+    // Construct the URL to complete the task with specific variables
     const completeTaskUrl = `${camundaApiUrl}/task/${taskInstanceId}/complete`;
 
     // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
 
-    // Access the data from the request body
-    const requestData = req.body;
+    // Variables to complete the task with
+    const taskCompletionData = {
+      variables: {
+        aVariable: {
+          value: "aStringValue",
+        },
+        anotherVariable: {
+          value: 42,
+        },
+        aThirdVariable: {
+          value: true,
+        },
+      },
+    };
 
-    // Make an HTTP POST request to complete the task with the data from the request
-    const response = await axios.post(completeTaskUrl, requestData, {
+    // Make an HTTP POST request to complete the task with variables
+    const response = await axios.post(completeTaskUrl, taskCompletionData, {
       headers: {
-        'Content-Type': 'application/json',
         Authorization: authHeader,
+        'Content-Type': 'application/json',
       },
     });
 
     if (response.status === 204) {
-      console.log(`Task with ID ${taskInstanceId} completed successfully.`);
-      return res.status(200).json({ message: `Task with ID ${taskInstanceId} completed successfully` });
+      // Task completion was successful
+      res.status(200).json({ message: "Task completed successfully." });
     } else {
-      console.error(`Failed to complete task. Camunda response: ${response.status}`);
-      return res.status(500).json({ error: 'Failed to complete the task' });
+      res.status(response.status).json({ error: "Failed to complete the task with variables." });
     }
   } catch (error: any) {
-    console.error('Error completing the task:', error.message);
-    return res.status(500).json({ error: 'Failed to complete the task' });
+    console.error("Error completing task with variables:", error.message);
+    res.status(500).json({ error: "Failed to complete the task with variables" });
   }
 };
+
 
 export const listTasksByCandidateGroup = async (req: Request, res: Response) => {
   try {
