@@ -5,13 +5,8 @@
       <bpmn:outgoing>Flow_1dap2lp</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_1dap2lp" sourceRef="StartEvent_1" targetRef="task_request_loan" />
-    <bpmn:userTask id="task_request_loan" name="Request Loan" camunda:assignee="demo">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="fullname" label="Fullname" type="string" />
-          <camunda:formField id="dob" label="Date of birth" type="date" />
-        </camunda:formData>
-      </bpmn:extensionElements>
+    <bpmn:userTask id="task_request_loan" name="Request Loan" camunda:formKey="form_9" camunda:assignee="demo">
+      <bpmn:extensionElements />
       <bpmn:incoming>Flow_1dap2lp</bpmn:incoming>
       <bpmn:outgoing>Flow_1ohumve</bpmn:outgoing>
     </bpmn:userTask>

@@ -501,7 +501,7 @@ export const createTaskComment = async (req: Request, res: Response) => {
     const { username, password } = getCamundaCredentials();
 
     // Retrieve the task ID and comment data from the request body
-    const taskId = req.body.taskId as string;
+    const taskId = req.query.taskId as string;
     const comment = req.body.comment as string;
 
     if (!taskId || !comment) {
@@ -573,14 +573,20 @@ export const getTaskComment = async (req: Request, res: Response) => {
   }
 };
 
+
 export const getHistoryOperation = async (req: Request, res: Response) => {
   try {
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
+    const taskInstanceId = req.query.taskInstanceId; // Assuming you pass the taskInstanceId as a query parameter
+
+    if (!taskInstanceId) {
+      return res.status(400).json({ error: 'taskInstanceId is required' });
+    }
 
     // Build the URL and authorization header for the Camunda API
-    const apiUrl = `${camundaApiUrl}/history/user-operation`;
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+    const apiUrl = `${camundaApiUrl}/history/user-operation?taskInstanceId=${taskInstanceId}`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 
     // Make an HTTP GET request to the Camunda API with the authorization header
     const response = await axios.get(apiUrl, {
@@ -595,10 +601,11 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
       return res.status(500).json({ error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}` });
     }
   } catch (error: any) {
-    console.error("Error retrieving data from Camunda API:", error.message);
-    res.status(500).json({ error: "Failed to retrieve data from Camunda API" });
+    console.error('Error retrieving data from Camunda API:', error.message);
+    res.status(500).json({ error: 'Failed to retrieve data from Camunda API' });
   }
 };
+
 
 export const getHistoricIdentityLink = async (req: Request, res: Response) => {
   try {
