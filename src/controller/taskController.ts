@@ -430,38 +430,37 @@ export const unclaimTask = async (req: Request, res: Response) => {
   }
 };
 
-export const getHistoryTasksForUser = async (req: Request, res: Response) => {
+export const getHistoricalTaskDetails = async (req: Request, res: Response) => {
   try {
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
 
-    // Retrieve the 'userId' from the request body
-    const assignee = req.query.assignee as string;
-    // const userId = req.query.userId;
+    // Retrieve the 'taskInstanceId' from the request query
+    const taskId = req.query.taskId as string;
 
-    const historicalTasksUrl = `${camundaApiUrl}/history/task?assignee=${assignee}`;
+    const historicalTaskDetailsUrl = `${camundaApiUrl}/history/task?taskId=${taskId}`;
 
     // Authenticate with Camunda API using Basic Authentication
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
 
-    // Make an HTTP GET request to retrieve historical tasks
-    const response = await axios.get(historicalTasksUrl, {
+    // Make an HTTP GET request to retrieve historical task details
+    const response = await axios.get(historicalTaskDetailsUrl, {
       headers: {
         Authorization: authHeader,
       },
-
     });
 
     if (response.status === 200) {
       res.status(200).json(response.data);
     } else {
-      throw new Error(`Failed to retrieve historical tasks. Camunda response: ${response.status}`);
+      throw new Error(`Failed to retrieve historical task details. Camunda response: ${response.status}`);
     }
   } catch (error: any) {
-    console.error("Error retrieving historical tasks:", error.message);
-    res.status(500).json({ error: "Failed to retrieve historical tasks" });
+    console.error("Error retrieving historical task details:", error.message);
+    res.status(500).json({ error: "Failed to retrieve historical task details" });
   }
 };
+
 
 export const getHistoryTasksProcessInstanceForUser = async (req: Request, res: Response) => {
   try {
