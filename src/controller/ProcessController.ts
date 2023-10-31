@@ -209,5 +209,36 @@ export const getProcessInstanceVariables = async (req: Request, res: Response) =
     }
 };
 
-
+export const getHistoryTasksProcessInstanceForUser = async (req: Request, res: Response) => {
+    try {
+      const camundaApiUrl = getCamundaApiUrl();
+      const { username, password } = getCamundaCredentials();
+  
+      // Retrieve the 'assignee' from the request query parameters
+      const processInstanceId = req.query.processInstanceId as string;
+  
+      // Define the historical process instance URL
+      const historicalProcessInstanceUrl = `${camundaApiUrl}/history/process-instance?processInstanceId=${processInstanceId}`;
+  
+      // Authenticate with Camunda API using Basic Authentication
+      const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+  
+      // Make an HTTP GET request to retrieve historical process instances
+      const response = await axios.get(historicalProcessInstanceUrl, {
+        headers: {
+          Authorization: authHeader,
+        },
+      });
+  
+      if (response.status === 200) {
+        res.status(200).json(response.data);
+      } else {
+        throw new Error(`Failed to retrieve historical process instances. Camunda response: ${response.status}`);
+      }
+    } catch (error: any) {
+      console.error("Error retrieving historical process instances:", error.message);
+      res.status(500).json({ error: "Failed to retrieve historical process instances" });
+    }
+  };
+  
 

@@ -462,37 +462,6 @@ export const getHistoricalTaskDetails = async (req: Request, res: Response) => {
 };
 
 
-export const getHistoryTasksProcessInstanceForUser = async (req: Request, res: Response) => {
-  try {
-    const camundaApiUrl = getCamundaApiUrl();
-    const { username, password } = getCamundaCredentials();
-
-    // Retrieve the 'assignee' from the request query parameters
-    const assignee = req.query.assignee as string;
-
-    // Define the historical process instance URL
-    const historicalProcessInstanceUrl = `${camundaApiUrl}/history/process-instance?assignee=${assignee}`;
-
-    // Authenticate with Camunda API using Basic Authentication
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
-
-    // Make an HTTP GET request to retrieve historical process instances
-    const response = await axios.get(historicalProcessInstanceUrl, {
-      headers: {
-        Authorization: authHeader,
-      },
-    });
-
-    if (response.status === 200) {
-      res.status(200).json(response.data);
-    } else {
-      throw new Error(`Failed to retrieve historical process instances. Camunda response: ${response.status}`);
-    }
-  } catch (error: any) {
-    console.error("Error retrieving historical process instances:", error.message);
-    res.status(500).json({ error: "Failed to retrieve historical process instances" });
-  }
-};
 
 export const createTaskComment = async (req: Request, res: Response) => {
   try {
@@ -577,14 +546,14 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
   try {
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
-    const taskInstanceId = req.query.taskInstanceId; // Assuming you pass the taskInstanceId as a query parameter
+    const taskId = req.query.taskId; // Assuming you pass the taskInstanceId as a query parameter
 
-    if (!taskInstanceId) {
-      return res.status(400).json({ error: 'taskInstanceId is required' });
+    if (!taskId) {
+      return res.status(400).json({ error: 'taskId is required' });
     }
 
     // Build the URL and authorization header for the Camunda API
-    const apiUrl = `${camundaApiUrl}/history/user-operation?taskInstanceId=${taskInstanceId}`;
+    const apiUrl = `${camundaApiUrl}/history/user-operation?taskId=${taskId}`;
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 
     // Make an HTTP GET request to the Camunda API with the authorization header
@@ -595,7 +564,12 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
     });
 
     if (response.status === 200) {
-      res.status(200).json(response.data);
+      const camundaResponseData = response.data;
+
+      // Transform the Camunda API response into the desired format
+      
+
+      res.status(200).json(camundaResponseData);
     } else {
       return res.status(500).json({ error: `Failed to retrieve data from Camunda API. Camunda response: ${response.status}` });
     }
@@ -604,6 +578,7 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to retrieve data from Camunda API' });
   }
 };
+
 
 
 export const getHistoricIdentityLink = async (req: Request, res: Response) => {

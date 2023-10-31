@@ -1,7 +1,7 @@
 import express from 'express';
-import {getHistoryTasksProcessInstanceForUser , claimTask, completeTaskById, getTaskDetailById, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails } from '../controller/taskController';
+import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
-import { bpmnStartProcess, deployBpmnController, getProcessInstanceVariables, getTasks } from '../controller/ProcessController';
+import { bpmnStartProcess, deployBpmnController, getHistoryTasksProcessInstanceForUser, getProcessInstanceVariables, getTasks } from '../controller/ProcessController';
 import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1, getTaskRenderedFormById } from '../controller/formController';
 
 
