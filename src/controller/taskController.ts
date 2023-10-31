@@ -513,13 +513,13 @@ export const getTaskComment = async (req: Request, res: Response) => {
 
     // Retrieve the task ID and comment ID from the query parameters
     const taskId = req.query.taskId as string;
-    const commentId = req.query.commentId as string;
+    // const commentId = req.query.commentId as string;
 
-    if (!taskId || !commentId) {
+    if (!taskId) {
       return res.status(400).json({ error: "Task ID or comment ID is missing or empty." });
     }
 
-    const commentUrl = `${camundaApiUrl}/task/${taskId}/comment/${commentId}`;
+    const commentUrl = `${camundaApiUrl}/task/${taskId}/comment`;
 
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
 
@@ -644,6 +644,44 @@ export const getIdentityGroup = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Error retrieving user groups:", error.message);
     res.status(500).json({ error: "Failed to retrieve user groups" });
+  }
+};
+
+
+
+export const getDecisionDefinitionXML = async (req:Request, res:Response) => {
+  try {
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
+
+    const decisionDefinitionId = req.query.decisionDefinitionId; // Assuming you pass the decision definition ID as a parameter
+
+    if (!decisionDefinitionId) {
+      return res.status(400).json({ error: 'Decision definition ID is required' });
+    }
+
+    // Build the URL for the Camunda API to retrieve decision definition XML
+    const apiUrl = `${camundaApiUrl}/decision-definition/${decisionDefinitionId}/xml`;
+
+    // Authenticate with Camunda API using Basic Authentication
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+    // Make an HTTP GET request to retrieve the decision definition XML
+    const response = await axios.get(apiUrl, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
+    if (response.status === 200) {
+      // Return the XML as a response
+      res.status(200).send(response.data);
+    } else {
+      return res.status(500).json({ error: `Failed to retrieve decision definition XML. Camunda response: ${response.status}` });
+    }
+  } catch (error: any) {
+    console.error('Error retrieving decision definition XML:', error.message);
+    res.status(500).json({ error: 'Failed to retrieve decision definition XML' });
   }
 };
 
