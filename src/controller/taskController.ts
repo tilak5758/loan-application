@@ -5,6 +5,9 @@ import axios from 'axios';
 import { getCamundaApiUrl, getCamundaCredentials } from '../common';
 import fs from 'fs'; 
 import path from 'path';
+// import BpmnViewer from 'bpmn-js';
+// import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
+import BpmnModeler from 'bpmn-js/lib/Modeler';
 
 
 
@@ -649,24 +652,21 @@ export const getIdentityGroup = async (req: Request, res: Response) => {
 
 
 
-export const getDecisionDefinitionXML = async (req:Request, res:Response) => {
+export const getProcessDefinitionXml = async (req: Request, res: Response) => {
   try {
-    const camundaApiUrl = getCamundaApiUrl();
-    const { username, password } = getCamundaCredentials();
+    const camundaApiUrl = getCamundaApiUrl(); // Define your function to get the Camunda API URL
+    const { username, password } = getCamundaCredentials(); // Define your function to get Camunda credentials
+    const processDefinitionId = req.query.processDefinitionId as string; // Assuming you pass the process definition ID as a query parameter
 
-    const decisionDefinitionId = req.query.decisionDefinitionId; // Assuming you pass the decision definition ID as a parameter
-
-    if (!decisionDefinitionId) {
-      return res.status(400).json({ error: 'Decision definition ID is required' });
+    if (!processDefinitionId) {
+      return res.status(400).json({ error: 'processDefinitionId is required' });
     }
 
-    // Build the URL for the Camunda API to retrieve decision definition XML
-    const apiUrl = `${camundaApiUrl}/decision-definition/${decisionDefinitionId}/xml`;
-
-    // Authenticate with Camunda API using Basic Authentication
+    // Build the URL and authorization header for the Camunda API
+    const apiUrl = `${camundaApiUrl}/engine/default/process-definition/${processDefinitionId}/xml`;
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 
-    // Make an HTTP GET request to retrieve the decision definition XML
+    // Make an HTTP GET request to the Camunda API with the authorization header
     const response = await axios.get(apiUrl, {
       headers: {
         Authorization: authHeader,
@@ -674,16 +674,57 @@ export const getDecisionDefinitionXML = async (req:Request, res:Response) => {
     });
 
     if (response.status === 200) {
-      // Return the XML as a response
-      res.status(200).send(response.data);
+      const camundaResponseData = response.data.bpmn20Xml;
+      console.log('Received BPMN XML:', camundaResponseData);
+
+      // Embed HTML and JavaScript to render BPMN diagram
+      const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>BPMN Diagram</title>
+          <script src="https://cdn.jsdelivr.net/npm/bpmn-js/dist/bpmn-viewer.production.min.js"></script>
+          <style>
+            #bpmn-container {
+              height: 500px;
+            }
+          </style>
+        </head>
+        <body>
+          <div id="bpmn-container"></div>
+          <script>
+            const bpmnXml = ${JSON.stringify(camundaResponseData)};
+            const container = document.getElementById('bpmn-container');
+            const viewer = new BpmnJS({
+              container,
+              width: '100%',
+              height: '100%',
+            });
+            viewer.importXML(bpmnXml, (err) => {
+              if (err) {
+                console.error('Error rendering BPMN diagram:', err);
+              } else {
+                console.log('BPMN diagram rendered successfully.');
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `;
+
+      // Send the HTML response with the embedded BPMN diagram rendering code
+      res.status(200).send(html);
     } else {
-      return res.status(500).json({ error: `Failed to retrieve decision definition XML. Camunda response: ${response.status}` });
+      return res.status(500).json({ error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}` });
     }
   } catch (error: any) {
-    console.error('Error retrieving decision definition XML:', error.message);
-    res.status(500).json({ error: 'Failed to retrieve decision definition XML' });
+    console.error('Error retrieving process definition XML from Camunda API:', error.message);
+    res.status(500).json({ error: 'Failed to retrieve process definition XML from Camunda API' });
   }
 };
+
+
+
 
 
 export const userLogin = async (req: Request, res: Response) => {
