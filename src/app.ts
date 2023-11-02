@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import userRoutes from "./routes/userRoutes";
 import loanApplicationRoutes from "./routes/loanApplicationRoutes";
 import task from './routes/taskRoutes'
+import filter from "./routes/filterRoutes"
 import cors from 'cors';
 import axios from "axios";
 import { getCamundaApiUrl, getCamundaCredentials } from "./common";
@@ -17,6 +18,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/api", userRoutes);
 app.use("/api", loanApplicationRoutes);
 app.use("/api",task)
+app.use("/api",filter)
 
 
 

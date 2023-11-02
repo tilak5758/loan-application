@@ -272,8 +272,6 @@ export const getTaskDataByTaskDefinitionKey = async (req: Request, res: Response
 };
 
 
-
-
 export const completeTaskById = async (req: Request, res: Response) => {
   try {
     // Replace with your actual Camunda API URL and credentials retrieval logic
@@ -650,8 +648,6 @@ export const getIdentityGroup = async (req: Request, res: Response) => {
   }
 };
 
-
-
 export const getProcessDefinitionXml = async (req: Request, res: Response) => {
   try {
     const camundaApiUrl = getCamundaApiUrl(); // Define your function to get the Camunda API URL
@@ -675,45 +671,46 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
 
     if (response.status === 200) {
       const camundaResponseData = response.data.bpmn20Xml;
-      console.log('Received BPMN XML:', camundaResponseData);
+      // console.log('Received BPMN XML:', camundaResponseData);
 
-      // Embed HTML and JavaScript to render BPMN diagram
-      const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>BPMN Diagram</title>
-          <script src="https://cdn.jsdelivr.net/npm/bpmn-js/dist/bpmn-viewer.production.min.js"></script>
-          <style>
-            #bpmn-container {
-              height: 500px;
-            }
-          </style>
-        </head>
-        <body>
-          <div id="bpmn-container"></div>
-          <script>
-            const bpmnXml = ${JSON.stringify(camundaResponseData)};
-            const container = document.getElementById('bpmn-container');
-            const viewer = new BpmnJS({
-              container,
-              width: '100%',
-              height: '100%',
-            });
-            viewer.importXML(bpmnXml, (err) => {
-              if (err) {
-                console.error('Error rendering BPMN diagram:', err);
-              } else {
-                console.log('BPMN diagram rendered successfully.');
-              }
-            });
-          </script>
-        </body>
-      </html>
-    `;
+    //   // Embed HTML and JavaScript to render BPMN diagram
+    //   const html = `
+    //   <!DOCTYPE html>
+    //   <html>
+    //     <head>
+    //       <title>BPMN Diagram</title>
+    //       <script src="https://cdn.jsdelivr.net/npm/bpmn-js/dist/bpmn-viewer.production.min.js"></script>
+    //       <style>
+    //         #bpmn-container {
+    //           height: 500px;
+    //         }
+    //       </style>
+    //     </head>
+    //     <body>
+    //       <div id="bpmn-container"></div>
+    //       <script>
+    //         const container = document.getElementById('bpmn-container');
+    //         const viewer = new BpmnJS({
+    //           container,
+    //           width: '100%',
+    //           height: '100%',
+    //         });
+    //         viewer.importXML(${JSON.stringify(camundaResponseData)}, (err) => {
+    //           if (err) {
+    //             console.error('Error rendering BPMN diagram:', err);
+    //             console.error('BPMN XML:', ${JSON.stringify(camundaResponseData)}); // Log the BPMN XML for debugging
+    //           } else {
+    //             console.log('BPMN diagram rendered successfully.');
+    //           }
+    //         });
+            
+            
+    //       </script>
+    //     </body>
+    //   </html>
+    // `;
 
-      // Send the HTML response with the embedded BPMN diagram rendering code
-      res.status(200).send(html);
+      res.status(200).send(camundaResponseData);
     } else {
       return res.status(500).json({ error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}` });
     }
@@ -722,9 +719,6 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to retrieve process definition XML from Camunda API' });
   }
 };
-
-
-
 
 
 export const userLogin = async (req: Request, res: Response) => {

@@ -37,7 +37,7 @@ router.get('/gettaskdata',getTaskDataByTaskDefinitionKey)
 
 router.get("/task",getTaskDetailById)
 router.post("/task/complete",completeTaskById)
-router.get('/Tasks/candidate-group', listTasksByCandidateGroup);
+router.get('/tasks/candidate-group', listTasksByCandidateGroup);
 router.post("/task/claim",claimTask)
 router.post("/task/unclaim",unclaimTask)
 
