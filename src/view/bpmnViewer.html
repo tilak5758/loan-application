@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <style>
+    html, body, #diagram {
+      height: 100%
+    }
+
+    .highlight:not(.djs-connection) .djs-visual > :nth-child(1) {
+      fill: green !important; /* color elements as green */
+    }
+
+    .highlight-overlay {
+      background-color: green; /* color elements as green */
+      opacity: 0.4;
+      pointer-events: none; /* no pointer events, allows clicking through onto the element */
+      border-radius: 10px;
+    }
+  </style>
+
+  <!--
+    this is an example of how to add colors to your BPMN diagram using bpmn-js
+  -->
+
+  <title>bpmn-js colors example - bpmn-js-examples</title>
+</head>
+<body>
+
+  <h1>bpmn-js Colors</h1>
+
+  <div id="diagram"></div>
+
+  <!-- required modeler styles -->
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@15.1.2/dist/assets/diagram-js.css">
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@15.1.2/dist/assets/bpmn-js.css">
+  <link rel="stylesheet" href="https://unpkg.com/bpmn-js@15.1.2/dist/assets/bpmn-font/css/bpmn.css">
+
+  <!-- modeler distro -->
+  <script src="https://unpkg.com/bpmn-js@15.1.2/dist/bpmn-modeler.development.js"></script>
+
+  <!-- jquery (required for example only) -->
+  <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+
+  <!-- app -->
+  <script>
+
+    var viewer = new BpmnJS({
+      container: '#diagram'
+    });
+
+    async function showDiagram(diagramXML) {
+
+      await viewer.importXML(diagramXML);
+
+      var overlays = viewer.get('overlays'),
+          canvas = viewer.get('canvas'),
+          elementRegistry = viewer.get('elementRegistry'),
+          modeling = viewer.get('modeling');
+
+      // Option 1: Color via Overlay
+      var shape = elementRegistry.get('reviewInvoice');
+
+      var $overlayHtml = $('<div class="highlight-overlay">')
+                              .css({
+                                width: shape.width,
+                                height: shape.height
+                              });
+
+      overlays.add('reviewInvoice', {
+        position: {
+          top: 0,
+          left: 0
+        },
+        html: $overlayHtml
+      })
+
+// Option 3: Color via Marker + CSS Styling
+canvas.addMarker('reviewInvoice', 'highlight');
+    }
+
+    // load + show diagram
+    $.get('http://localhost:3000/api/diagram?processDefinitionId=ReviewInvoice:1:4f474de7-67f7-11ee-82fa-7845c4ade527', showDiagram, 'text');
+  </script>
+</body>
+</html>

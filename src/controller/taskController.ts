@@ -327,20 +327,17 @@ export const completeTaskById = async (req: Request, res: Response) => {
 };
 
 
+
+
+
+
 export const listTasksByCandidateGroup = async (req: Request, res: Response) => {
   try {
     const camundaApiUrl = getCamundaApiUrl();
     const { username, password } = getCamundaCredentials();
+    const listTasksUrl = `${camundaApiUrl}/task/?withCandidateGroups=true`;
 
-    const candidateGroup = req.query.candidateGroup as string;
-
-    if (!candidateGroup) {
-      return res.status(400).json({ error: 'Candidate group is missing in the query parameters' });
-    }
-
-    const listTasksUrl = `${camundaApiUrl}/task?candidateGroup=${candidateGroup}`;
-
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+    const authHeader =  `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;;
 
     const response = await axios.get(listTasksUrl, {
       headers: {
@@ -350,13 +347,11 @@ export const listTasksByCandidateGroup = async (req: Request, res: Response) => 
     });
 
     if (response.status === 200) {
-      // Handle a successful response
       const responseData = response.data;
-      console.log(responseData);
-      return res.status(200).json({ responseData });
+      return res.status(200).json(responseData);
     } else if (response.status === 404) {
       // Handle the case where no tasks were found for the candidate group
-      return res.status(200).json({ responseData: [] });
+      return res.status(200).json([]);
     } else {
       // Handle other status codes as needed
       return res.status(response.status).json({ error: 'Failed to retrieve tasks' });
@@ -366,6 +361,9 @@ export const listTasksByCandidateGroup = async (req: Request, res: Response) => 
     return res.status(500).json({ error: 'Failed to list tasks by candidate group' });
   }
 };
+
+
+
 
 export const claimTask = async (req: Request, res: Response) => {
   try {
@@ -719,6 +717,54 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to retrieve process definition XML from Camunda API' });
   }
 };
+
+
+export const renderBpmnWithHighlight = async (req: Request, res: Response) => {
+  try {
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
+    const processDefinitionId = req.query.processDefinitionId as string;
+    const currentTaskId = req.query.task as string; // Get the current task ID from the client
+
+    if (!processDefinitionId) {
+      return res.status(400).json({ error: 'processDefinitionId is required' });
+    }
+
+    const apiUrl = `${camundaApiUrl}/engine/default/process-definition/${processDefinitionId}/xml`;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+    const response = await axios.get(apiUrl, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
+    if (response.status === 200) {
+      const camundaResponseData = response.data.bpmn20Xml;
+
+      // You can render the BPMN diagram using react-bpmn here
+      // Initialize react-bpmn and pass the camundaResponseData for rendering
+
+      // For example:
+      // const bpmnDiagram = createBpmnDiagram(camundaResponseData);
+      // renderReactBpmn(bpmnDiagram);
+
+      // Additionally, you can highlight the current task in the BPMN diagram
+      // Use the 'currentTaskId' to highlight the task
+
+      // For example:
+      // highlightTaskInBpmn(bpmnDiagram, currentTaskId);
+
+      res.status(200).send({ message: 'BPMN diagram rendered and task highlighted successfully',camundaResponseData });
+    } else {
+      return res.status(500).json({ error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}` });
+    }
+  } catch (error: any) {
+    console.error('Error retrieving process definition XML from Camunda API:', error.message);
+    res.status(500).json({ error: 'Failed to retrieve process definition XML from Camunda API' });
+  }
+};
+
 
 
 export const userLogin = async (req: Request, res: Response) => {

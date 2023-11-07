@@ -1,5 +1,5 @@
 import express from 'express';
-import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, listTasksByCandidateGroup, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails,  getProcessDefinitionXml } from '../controller/taskController';
+import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails,  getProcessDefinitionXml, listTasksByCandidateGroup, renderBpmnWithHighlight } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
 import { bpmnStartProcess, deployBpmnController, getHistoryTasksProcessInstanceForUser, getProcessInstanceVariables, getTasks } from '../controller/ProcessController';
 import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1, getTaskRenderedFormById } from '../controller/formController';
@@ -24,7 +24,7 @@ router.get('/process/variables', getProcessInstanceVariables);
 
 // login route
 router.post("/login",userLogin)
-
+2
 // task routes
 router.get("/tasks",getTasksForUser);
 router.get("/taskdetail",getTaskDetailByProcessInstance);
@@ -52,6 +52,7 @@ router.get("/history/operation",getHistoryOperation)
 router.get("/history/identity-link",getHistoricIdentityLink);
 
 router.get("/diagram",getProcessDefinitionXml)
+router.get("/diagramx",renderBpmnWithHighlight)
 
 // identity routes
 router.get("/identity/group",getIdentityGroup)
