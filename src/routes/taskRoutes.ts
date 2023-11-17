@@ -1,7 +1,7 @@
 import express from 'express';
-import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails,  getProcessDefinitionXml, listTasksByCandidateGroup, renderBpmnWithHighlight } from '../controller/taskController';
+import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails,  getProcessDefinitionXml, listTasksByCandidateGroup } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
-import { bpmnStartProcess, deployBpmnController, getHistoryTasksProcessInstanceForUser, getProcessInstanceVariables, getTasks } from '../controller/ProcessController';
+import { bpmnStartProcess, deployBpmnController, getProcessInstanceDetails, getTasks, getTasksProcessInstanceForUser } from '../controller/ProcessController';
 import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1, getTaskRenderedFormById } from '../controller/formController';
 
 
@@ -19,7 +19,8 @@ router.get('/task/rendered-form',getTaskRenderedFormById)
 router.post('/deploy',deployBpmnController);
 router.post('/process/start',bpmnStartProcess);
 router.get('/tasks/active',getTasks)
-router.get('/process/variables', getProcessInstanceVariables);
+router.get('/process/variables', getProcessInstanceDetails);
+router.get("/task/processinstance",getTasksProcessInstanceForUser );
 
 
 // login route
@@ -47,12 +48,11 @@ router.get("/task/comment",getTaskComment)
 
 // history routes
 router.get("/history/tasks",getHistoricalTaskDetails)
-router.get("/history/task/processinstance",getHistoryTasksProcessInstanceForUser );
 router.get("/history/operation",getHistoryOperation)
 router.get("/history/identity-link",getHistoricIdentityLink);
 
 router.get("/diagram",getProcessDefinitionXml)
-router.get("/diagramx",renderBpmnWithHighlight)
+
 
 // identity routes
 router.get("/identity/group",getIdentityGroup)

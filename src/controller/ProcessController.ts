@@ -154,91 +154,84 @@ export const getTasks = async (req: Request, res: Response) => {
     }
 };
 
-export const getProcessInstanceVariables = async (req: Request, res: Response) => {
+export const getProcessInstanceDetails = async (req: Request, res: Response) => {
     try {
         const camundaApiUrl = getCamundaApiUrl();
         const { username, password } = getCamundaCredentials();
 
-        const processInstanceId = req.query.processInstanceId as string;
+        const processInstanceId = req.query.processInstanceId ;
+        // const tasksUrl = `${camundaApiUrl}/task`
 
         if (!processInstanceId) {
             throw new Error('Process instance ID is missing or empty.');
         }
-
-        // Endpoint for getting process instance variables
+        const historicalProcessInstanceUrl = `${camundaApiUrl}/task?processInstanceId=${processInstanceId}`;
         const variablesUrl = `${camundaApiUrl}/process-instance/${processInstanceId}/variables`;
 
-        // Authenticate with Camunda API using Basic Authentication
+
         const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
 
-        // Make a GET request to retrieve process instance variables
-        const response = await axios.get(variablesUrl, {
+        const variablesResponse = await axios.get(variablesUrl, {
             headers: {
                 Authorization: authHeader,
                 'Content-Type': 'application/json',
             },
         });
 
-        if (response.status === 200) {
-            const variables = response.data as Record<string, any>;
+        const historicalResponse = await axios.get(historicalProcessInstanceUrl, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
 
-            if (typeof variables === 'object') {
-                const convertedVariables: Record<string, any> = {};
+        if (variablesResponse.status === 200 && historicalResponse.status === 200) {
+            const variables = variablesResponse.data;
+            const taskDetails = historicalResponse.data;
 
-                for (const variableName in variables) {
-                    if (variables[variableName].type === 'Json') {
-                        convertedVariables[variableName] = JSON.parse(variables[variableName].value);
-                    } else {
-                        convertedVariables[variableName] = variables[variableName].value;
-                    }
-                }
-
-                return res.status(200).json({
-                    message: 'Process instance variables retrieved successfully',
-                    variables: convertedVariables,
-                });
-            } else {
-                throw new Error(`Invalid response format from Camunda API`);
-            }
+            return res.status(200).json({
+                message: 'Process instance details retrieved successfully',
+                taskDetails: taskDetails,
+                variables: variables,
+            });
         } else {
-            throw new Error(`Failed to retrieve process instance variables. Camunda response: ${response.status}`);
+            throw new Error('Failed to retrieve process instance details');
         }
     } catch (error: any) {
-        console.error('Error retrieving process instance variables:', error.message);
-        res.status(500).json({ error: 'Failed to retrieve process instance variables' });
+        console.error('Error retrieving process instance details:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve process instance details' });
     }
 };
 
-export const getHistoryTasksProcessInstanceForUser = async (req: Request, res: Response) => {
+export const getTasksProcessInstanceForUser = async (req: Request, res: Response) => {
     try {
-      const camundaApiUrl = getCamundaApiUrl();
-      const { username, password } = getCamundaCredentials();
-  
-      // Retrieve the 'assignee' from the request query parameters
-      const processInstanceId = req.query.processInstanceId as string;
-  
-      // Define the historical process instance URL
-      const historicalProcessInstanceUrl = `${camundaApiUrl}/history/process-instance?processInstanceId=${processInstanceId}`;
-  
-      // Authenticate with Camunda API using Basic Authentication
-      const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
-  
-      // Make an HTTP GET request to retrieve historical process instances
-      const response = await axios.get(historicalProcessInstanceUrl, {
-        headers: {
-          Authorization: authHeader,
-        },
-      });
-  
-      if (response.status === 200) {
-        res.status(200).json(response.data);
-      } else {
-        throw new Error(`Failed to retrieve historical process instances. Camunda response: ${response.status}`);
-      }
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Retrieve the 'assignee' from the request query parameters
+        const processInstanceId = req.query.processInstanceId as string;
+
+        // Define the historical process instance URL
+        const historicalProcessInstanceUrl = `${camundaApiUrl}/task?processInstanceId=${processInstanceId}`;
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+
+        // Make an HTTP GET request to retrieve historical process instances
+        const response = await axios.get(historicalProcessInstanceUrl, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve historical process instances. Camunda response: ${response.status}`);
+        }
     } catch (error: any) {
-      console.error("Error retrieving historical process instances:", error.message);
-      res.status(500).json({ error: "Failed to retrieve historical process instances" });
+        console.error("Error retrieving historical process instances:", error.message);
+        res.status(500).json({ error: "Failed to retrieve historical process instances" });
     }
-  };
-  
+};
+
 

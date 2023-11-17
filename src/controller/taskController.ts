@@ -5,9 +5,7 @@ import axios from 'axios';
 import { getCamundaApiUrl, getCamundaCredentials } from '../common';
 import fs from 'fs'; 
 import path from 'path';
-// import BpmnViewer from 'bpmn-js';
-// import 'bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css';
-import BpmnModeler from 'bpmn-js/lib/Modeler';
+
 
 
 
@@ -719,51 +717,6 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
 };
 
 
-export const renderBpmnWithHighlight = async (req: Request, res: Response) => {
-  try {
-    const camundaApiUrl = getCamundaApiUrl();
-    const { username, password } = getCamundaCredentials();
-    const processDefinitionId = req.query.processDefinitionId as string;
-    const currentTaskId = req.query.task as string; // Get the current task ID from the client
-
-    if (!processDefinitionId) {
-      return res.status(400).json({ error: 'processDefinitionId is required' });
-    }
-
-    const apiUrl = `${camundaApiUrl}/engine/default/process-definition/${processDefinitionId}/xml`;
-    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
-
-    const response = await axios.get(apiUrl, {
-      headers: {
-        Authorization: authHeader,
-      },
-    });
-
-    if (response.status === 200) {
-      const camundaResponseData = response.data.bpmn20Xml;
-
-      // You can render the BPMN diagram using react-bpmn here
-      // Initialize react-bpmn and pass the camundaResponseData for rendering
-
-      // For example:
-      // const bpmnDiagram = createBpmnDiagram(camundaResponseData);
-      // renderReactBpmn(bpmnDiagram);
-
-      // Additionally, you can highlight the current task in the BPMN diagram
-      // Use the 'currentTaskId' to highlight the task
-
-      // For example:
-      // highlightTaskInBpmn(bpmnDiagram, currentTaskId);
-
-      res.status(200).send({ message: 'BPMN diagram rendered and task highlighted successfully',camundaResponseData });
-    } else {
-      return res.status(500).json({ error: `Failed to retrieve process definition XML from Camunda API. Camunda response: ${response.status}` });
-    }
-  } catch (error: any) {
-    console.error('Error retrieving process definition XML from Camunda API:', error.message);
-    res.status(500).json({ error: 'Failed to retrieve process definition XML from Camunda API' });
-  }
-};
 
 
 
