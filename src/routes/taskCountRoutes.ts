@@ -5,8 +5,8 @@ const router = express.Router();
 
 
 router.get('/taskcount',getTaskCount);
-router.get('/taskcount/assginuser',getAssignTaskCount);
-router.get('/taskcount/uassiginuser',getUnassignedTaskCount)
+router.get('/taskcount/assignuser',getAssignTaskCount);
+router.get('/taskcount/unassignnuser',getUnassignedTaskCount)
 router.get('/taskcount/withcandidategroups',getTaskCountWithCandidateGroups)
 router.get('/taskcount/withoutcandidategroups',getTaskCountWithoutCandidateGroups)
 
