@@ -237,7 +237,7 @@ export const getDeploymentCount = async (req: Request, res: Response) => {
     const { username, password } = getCamundaCredentials();
 
     // Construct the URL to get the process definition count
-    const processDefinitionCountUrl = `${camundaApiUrl}/engine/default/process-definition/count`;
+    const processDefinitionCountUrl = `${camundaApiUrl}/engine/default/deployment/count`;
 
     // Replace with the actual Authorization token if needed
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`; 
@@ -250,8 +250,8 @@ export const getDeploymentCount = async (req: Request, res: Response) => {
     });
 
     if (response.status === 200) {
-      const processDefinitionCount = response.data;
-      res.status(200).json({ processDefinitionCount });
+      const deploymentCount = response.data;
+      res.status(200).json({ deploymentCount });
     } else {
       res.status(response.status).json({ error: "Failed to get process definition count." });
     }
