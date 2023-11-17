@@ -74,7 +74,7 @@ export const getUnassignedTaskCount = async (req: Request, res: Response) => {
     const { username, password } = getCamundaCredentials();
 
     // Construct the URL to get the unassigned task count with query parameters
-    const unassignedTaskCountUrl = `${camundaApiUrl}/engine/default/task/count?unassigned=true`;
+    const unassignedTaskCountUrl = `${camundaApiUrl}/engine/default/task/count?unassigned=true&withoutCandidateGroups=true`;
 
     // Authenticate with Camunda API using Basic Authentication
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
