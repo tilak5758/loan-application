@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAssignTaskCount, getDeploymentCount, getLatestDecisionDefinitionCount, getLatestIncidentCount, getLatestProcessDefinitionCount, getTaskCount, getTaskCountWithCandidateGroups, getTaskCountWithoutCandidateGroups, getUnassignedTaskCount, getUnfinishedProcessInstanceCount } from '../controller/countController';
+import { getAssignTaskCount, getDeploymentCount, getLatestDecisionDefinitionCount, getLatestIncidentCount, getLatestProcessDefinitionCount, getRunningInstances, getTaskCount, getTaskCountWithCandidateGroups, getTaskCountWithoutCandidateGroups, getUnassignedTaskCount, getUnfinishedProcessInstanceCount } from '../controller/countController';
 
 const router = express.Router();
 
@@ -12,10 +12,13 @@ router.get('/taskcount/withoutcandidategroups',getTaskCountWithoutCandidateGroup
 
 router.get('/count/unfinishedprocessinstance',getUnfinishedProcessInstanceCount);
 router.get('/count/latestprocessdefinition',getLatestProcessDefinitionCount)
+router.get("/count/runninginstances",getRunningInstances)
 router.get('/count/deployments',getDeploymentCount);
 
 router.get('/count/latestdecisiondefinition',getLatestDecisionDefinitionCount);
 router.get('/count/latestincident',getLatestIncidentCount)
+
+
 
 
 export default router;
