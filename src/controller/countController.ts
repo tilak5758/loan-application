@@ -337,7 +337,7 @@ export const getRunningInstances = async (req: Request, res: Response) => {
     const { username, password } = getCamundaCredentials();
 
     // Construct the URL to get all process definitions
-    const processDefinitionUrl = `${camundaApiUrl}/process-definition`;
+    const processDefinitionUrl = `${camundaApiUrl}/process-definition?latestVersion=true`;
 
     // Replace with the actual Authorization token if needed
     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
