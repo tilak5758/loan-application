@@ -46,4 +46,274 @@ export const getFilter = async (req: Request, res: Response) => {
     }
 };
 
+export const getTaskAscName = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
 
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+        const sortBy = 'name'; // Default to 'name' if not provided
+        const sortOrder = 'asc'; // Default to 'asc' if not provided
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};
+
+export const getTaskDescName = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+
+        const sortBy =   'name'; // Default to 'name' if not provided
+        const sortOrder =  'desc'; // Default to 'asc' if not provided
+
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};
+
+
+export const getTaskAscTime = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+
+        const sortOrder = req.query.sortOrder === 'asc'; // Default to 'asc' if not provided
+        const sortBy = 'created'; // Default to 'name' if not provided
+
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};
+
+export const getTaskDescTime = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+
+        const sortOrder = req.query.sortOrder === 'desc'; // Default to 'asc' if not provided
+        const sortBy = 'created'; // Default to 'name' if not provided
+
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};
+
+export const getTaskAscDueTime = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+
+        const sortOrder = req.query.sortOrder === 'asc'; // Default to 'asc' if not provided
+        const sortBy = 'due'; // Default to 'name' if not provided
+
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};
+
+export const getTaskDescDueTime = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+
+        const sortOrder = req.query.sortOrder === 'desc'; // Default to 'asc' if not provided
+        const sortBy = 'due'; // Default to 'name' if not provided
+
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};
+
+
+export const getTaskAscAssignee = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+
+        const sortOrder = req.query.sortOrder === 'asc'; // Default to 'asc' if not provided
+        const sortBy = 'assignee'; // Default to 'name' if not provided
+
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};
+
+export const getTaskDescAssignee = async (req: Request, res: Response) => {
+    try {
+        const camundaApiUrl = getCamundaApiUrl();
+        const { username, password } = getCamundaCredentials();
+
+        // Authenticate with Camunda API using Basic Authentication
+        const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+
+        // Build the URL with sortBy and sortOrder parameters
+        const tasksUrl = `${camundaApiUrl}/engine/default/task`;
+
+        const sortOrder = req.query.sortOrder === 'desc'; // Default to 'asc' if not provided
+        const sortBy = 'assignee'; // Default to 'name' if not provided
+
+        const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
+
+        // Make an HTTP GET request to retrieve tasks with the modified URL
+        const response = await axios.get(apiUrlWithParams, {
+            headers: {
+                Authorization: authHeader,
+            },
+        });
+
+        if (response.status === 200) {
+            res.status(200).json(response.data);
+        } else {
+            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+        }
+    } catch (error: any) {
+        console.error('Error retrieving tasks:', error.message);
+        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
+};

@@ -81,15 +81,16 @@ export const bpmnStartProcess = async (req: Request, res: Response) => {
         const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
 
         // Define the variables you want to send with the process start
-        const requestBody = {
-            "variables": {
-                "name": {
-                    "value": "tilak",
-                    "type": "String"
-                }
-            },
+        // const requestBody = {
+        //     "variables": {
+        //         "Incidents": {
+        //             "value": "tilak",
+        //             "type": "String"
+        //         }
+        //     },
 
-        };
+        // };
+        const requestBody = req.body;
 
         const response = await axios.post(startProcessUrl, requestBody, {
             headers: {
