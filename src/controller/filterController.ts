@@ -124,8 +124,8 @@ export const getTaskAscTime = async (req: Request, res: Response) => {
         // Build the URL with sortBy and sortOrder parameters
         const tasksUrl = `${camundaApiUrl}/engine/default/task`;
 
-        const sortOrder = req.query.sortOrder === 'asc'; // Default to 'asc' if not provided
         const sortBy = 'created'; // Default to 'name' if not provided
+        const sortOrder =  'asc'; // Default to 'asc' if not provided
 
         const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
 
@@ -158,8 +158,8 @@ export const getTaskDescTime = async (req: Request, res: Response) => {
         // Build the URL with sortBy and sortOrder parameters
         const tasksUrl = `${camundaApiUrl}/engine/default/task`;
 
-        const sortOrder = req.query.sortOrder === 'desc'; // Default to 'asc' if not provided
         const sortBy = 'created'; // Default to 'name' if not provided
+        const sortOrder = 'desc'; // Default to 'asc' if not provided
 
         const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
 
@@ -192,8 +192,8 @@ export const getTaskAscDueTime = async (req: Request, res: Response) => {
         // Build the URL with sortBy and sortOrder parameters
         const tasksUrl = `${camundaApiUrl}/engine/default/task`;
 
-        const sortOrder = req.query.sortOrder === 'asc'; // Default to 'asc' if not provided
         const sortBy = 'due'; // Default to 'name' if not provided
+        const sortOrder = 'asc'; // Default to 'asc' if not provided
 
         const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
 
