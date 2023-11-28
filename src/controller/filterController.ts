@@ -181,6 +181,8 @@ export const getTaskDescTime = async (req: Request, res: Response) => {
     }
 };
 
+
+
 export const getTaskAscDueTime = async (req: Request, res: Response) => {
     try {
         const camundaApiUrl = getCamundaApiUrl();
@@ -192,8 +194,8 @@ export const getTaskAscDueTime = async (req: Request, res: Response) => {
         // Build the URL with sortBy and sortOrder parameters
         const tasksUrl = `${camundaApiUrl}/engine/default/task`;
 
-        const sortBy = 'due'; // Default to 'name' if not provided
-        const sortOrder = 'asc'; // Default to 'asc' if not provided
+        const sortOrder = 'asc';
+        const sortBy = 'due'; 
 
         const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
 
@@ -204,16 +206,26 @@ export const getTaskAscDueTime = async (req: Request, res: Response) => {
             },
         });
 
-        if (response.status === 200) {
+        // Check if the response is successful (status code 2xx)
+        if (response.status >= 200 && response.status < 300) {
             res.status(200).json(response.data);
         } else {
-            throw new Error(`Failed to retrieve tasks. Camunda response: ${response.status}`);
+            // Log the actual response for better debugging
+            console.error('Failed to retrieve tasks. Camunda response:', response.status, response.data);
+            res.status(500).json({ error: 'Failed to retrieve tasks' });
         }
-    } catch (error: any) {
+    } catch (error:any) {
+        // Log the error message for debugging
+        if (axios.isAxiosError(error)) {
+        // Log the detailed error information provided by Camunda
+        console.error('Camunda error response:', error.response?.status, error.response?.data);
+    } else {
+        // Log the generic error message for other types of errors
         console.error('Error retrieving tasks:', error.message);
-        res.status(500).json({ error: 'Failed to retrieve tasks' });
+    }
     }
 };
+
 
 export const getTaskDescDueTime = async (req: Request, res: Response) => {
     try {
@@ -226,8 +238,8 @@ export const getTaskDescDueTime = async (req: Request, res: Response) => {
         // Build the URL with sortBy and sortOrder parameters
         const tasksUrl = `${camundaApiUrl}/engine/default/task`;
 
-        const sortOrder = req.query.sortOrder === 'desc'; // Default to 'asc' if not provided
-        const sortBy = 'due'; // Default to 'name' if not provided
+        const sortOrder =  'desc'; 
+        const sortBy = 'due'; 
 
         const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
 
@@ -261,7 +273,7 @@ export const getTaskAscAssignee = async (req: Request, res: Response) => {
         // Build the URL with sortBy and sortOrder parameters
         const tasksUrl = `${camundaApiUrl}/engine/default/task`;
 
-        const sortOrder = req.query.sortOrder === 'asc'; // Default to 'asc' if not provided
+        const sortOrder =  'asc'; // Default to 'asc' if not provided
         const sortBy = 'assignee'; // Default to 'name' if not provided
 
         const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;
@@ -295,7 +307,7 @@ export const getTaskDescAssignee = async (req: Request, res: Response) => {
         // Build the URL with sortBy and sortOrder parameters
         const tasksUrl = `${camundaApiUrl}/engine/default/task`;
 
-        const sortOrder = req.query.sortOrder === 'desc'; // Default to 'asc' if not provided
+        const sortOrder =  'desc'; // Default to 'asc' if not provided
         const sortBy = 'assignee'; // Default to 'name' if not provided
 
         const apiUrlWithParams = `${tasksUrl}?sortBy=${sortBy}&sortOrder=${sortOrder}`;

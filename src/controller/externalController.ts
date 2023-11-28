@@ -1,45 +1,56 @@
-import { Client, logger, Task, Variables } from 'camunda-external-task-client-js';
-import fs from "fs"
+// import { Request, Response } from 'express';
+// import { getCamundaApiUrl, getCamundaCredentials } from "../common";
+// import { MongoClient,MongoClientOptions } from 'mongodb';
+// import axios from 'axios';
 
-const config = {
-  baseUrl: 'http://localhost:8080/engine-rest', 
-  use: logger,
-};
+// export const getTaskCount = async (req: Request, res: Response) => {
+//   let client: MongoClient | undefined = undefined; 
+//   try {
+    
+//     // Connect to MongoDB
+//     const client = new MongoClient('mongodb://localhost:27017', { useNewUrlParser : true, useUnifiedTopology: true } as MongoClientOptions);
+//     await client.connect();
 
-const client = new Client(config);
+//     // Replace with your actual database and collection names
+//     const dbName = 'your_database_name';
+//     const collectionName = 'tasks';
 
-client.subscribe("invoiceCreator", async function ({ task, taskService }) {
-  // Put your business logic
-  const date = new Date();
-  
-  // Read the content of the file
-  const invoiceFilePath = __dirname;
-  let invoice = null;
-  
-  try {
-      invoice = fs.readFileSync(invoiceFilePath, 'utf8');
-  } catch (error:any) {
-      console.error(`Error reading file: ${error.message}`);
-      // Handle the error appropriately
-      return;
-  }
-  
-  const minute = date.getMinutes();
-  const variables = new Variables().setAll({ invoice, date });
-  
-  // Create separate Variables instances for process and task local scopes
-  const processScopeVariables = new Variables();
-  const taskLocalVariables = new Variables();
+//     // Construct the URL to get the task count
+//     const taskCountUrl = `${getCamundaApiUrl()}/engine/default/task/count`;
 
-  // check if minute is even
-  if (minute % 2 === 0) {
-    // for even minutes, store variables in the process scope
-    processScopeVariables.setAll({ invoice, date });
-    await taskService.complete(task, processScopeVariables, taskLocalVariables);
-  } else {
-    // for odd minutes, store variables in the task local scope
-    taskLocalVariables.setAll({ invoice, date });
-    await taskService.complete(task, processScopeVariables, taskLocalVariables);
-  }
-});
+//     // Authenticate with Camunda API using Basic Authentication
+//     const { username, password } = getCamundaCredentials();
+//     const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
 
+//     // Make an HTTP GET request to get the task count
+//     const response = await axios.get(taskCountUrl, {
+//       headers: {
+//         Authorization: authHeader,
+//         'Content-Type': 'application/json',
+//       },
+//     });
+
+//     if (response.status === 200) {
+//       const taskCount = response.data;
+
+//       // Store the task count in MongoDB
+//       const db = client.db(dbName);
+//       const collection = db.collection(collectionName);
+
+//       // Assuming you have a document structure like { taskCount: 5 }
+//       await collection.insertOne({ taskCount });
+
+//       res.status(200).json({ taskCount });
+//     } else {
+//       res.status(response.status).json({ error: "Failed to get task count." });
+//     }
+//   } catch (error: any) {
+//     console.error("Error getting task count:", error.message);
+//     res.status(500).json({ error: "Failed to get task count." });
+//   } finally {
+//     // Close the MongoDB connection
+//     if (client) {
+//       await client.close();
+//     }
+//   }
+// };
