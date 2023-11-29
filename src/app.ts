@@ -6,6 +6,7 @@ import loanApplicationRoutes from "./routes/loanApplicationRoutes";
 import task from './routes/taskRoutes'
 import filter from "./routes/filterRoutes"
 import count from './routes/taskCountRoutes'
+import admin from './routes/adminRoutes';
 import cors from 'cors';
 
 
@@ -19,6 +20,7 @@ app.use("/api", loanApplicationRoutes);
 app.use("/api",task)
 app.use("/api",filter)
 app.use('/api',count)
+app.use('/api',admin)
 
 
 

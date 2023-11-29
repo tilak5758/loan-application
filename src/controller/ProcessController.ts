@@ -235,4 +235,59 @@ export const getTasksProcessInstanceForUser = async (req: Request, res: Response
     }
 };
 
+export const getAllRunningInstances = async (req: Request, res: Response) => {
+    try {
+      // Replace with your actual Camunda API URL
+      const camundaApiUrl = getCamundaApiUrl();
+  
+      const { username, password } = getCamundaCredentials();
+  
+      // Construct the URL to get all process definitions
+      const processDefinitionUrl = `${camundaApiUrl}/process-definition?latestVersion=true`;
+  
+      // Replace with the actual Authorization token if needed
+      const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+  
+      // Make an HTTP GET request to get all process definitions
+      const processDefinitionResponse = await axios.get(processDefinitionUrl, {
+        headers: {
+          Authorization: authHeader,
+        },
+      });
+  
+      if (processDefinitionResponse.status === 200) {
+        const processDefinitions = processDefinitionResponse.data;
+  
+        // Extract processDefinitionKey from process definitions
+        const processDefinitionKeys = processDefinitions.map((processDefinition: any) => processDefinition.key);
+  
+        // Use map to get information about each process definition
+        const processDefinitionCountPromises = processDefinitionKeys.map(async (processDefinitionKey: string) => {
+          const processDefinitionCountResponse = await axios.get(
+            `${camundaApiUrl}/history/process-instance?processDefinitionKey=${encodeURIComponent(processDefinitionKey)}&unfinished=true`,
+            {
+              headers: {
+                Authorization: authHeader,
+              },
+            }
+          );
+          const processDefinitionCount = processDefinitionCountResponse.data;
+          return { key: processDefinitionKey, count: processDefinitionCount };
+        });
+  
+        // Wait for all process definition count requests to complete
+        const processDefinitionCounts = await Promise.all(processDefinitionCountPromises);
+  
+        res.status(200).json({ processDefinitions: processDefinitionCounts });
+      } else {
+        res.status(processDefinitionResponse.status).json({ error: 'Failed to get process definitions.' });
+      }
+    } catch (error: any) {
+      console.error('Error getting running process instances:', error.message);
+      res.status(500).json({ error: 'Failed to get running process instances.' });
+    }
+  };
+
+
+
 

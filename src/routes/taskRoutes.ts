@@ -1,7 +1,7 @@
-import express from 'express';
+import express, { Router } from 'express';
 import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails,  getProcessDefinitionXml, listTasksByCandidateGroup } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
-import { bpmnStartProcess, deployBpmnController, getProcessInstanceDetails, getTasks, getTasksProcessInstanceForUser } from '../controller/ProcessController';
+import { bpmnStartProcess, deployBpmnController, getAllRunningInstances, getProcessInstanceDetails, getTasks, getTasksProcessInstanceForUser } from '../controller/ProcessController';
 import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1, getTaskRenderedFormById } from '../controller/formController';
 
 
@@ -56,5 +56,6 @@ router.get("/diagram",getProcessDefinitionXml)
 
 // identity routes
 router.get("/identity/group",getIdentityGroup)
+router.get("/process-instance",getAllRunningInstances)
 
 export default router;
