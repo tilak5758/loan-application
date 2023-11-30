@@ -227,6 +227,45 @@ export const deleteUserFromGroup = async (req: Request, res: Response) => {
   }
 };
 
+export const deleteUserController = async (req: Request, res: Response) => {
+  try {
+    // Use the common functionality
+    const camundaApiUrl = getCamundaApiUrl();
+
+    // Extract user ID from the URL
+    const id = req.query.id;
+    // console.log('User ID:', id);
+
+    // URL for deleting a user
+    const deleteUserUrl = `${camundaApiUrl}/engine/default/user/${id}`;
+    // console.log('Delete User URL:', deleteUserUrl);
+
+    // Make an HTTP DELETE request to delete the user
+    const response = await axios.delete(deleteUserUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.status === 204) {
+      // User deletion succeeded, but there's no content to return
+      res.status(204).end();
+    } else {
+      // Handle unexpected response status
+      throw new Error(`User deletion failed. Unexpected Camunda response: ${response.status}`);
+    }
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
+      console.error('Camunda error response:', axiosError.response?.status, axiosError.response?.data);
+    } else {
+      console.error('Error deleting user:', error.message);
+    }
+    res.status(500).json({ error: 'User deletion failed. Please check the provided data and try again.' });
+  }
+};
+
+
 
 
 

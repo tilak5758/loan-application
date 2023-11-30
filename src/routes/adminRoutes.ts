@@ -1,5 +1,5 @@
 import express from 'express';
-import { createGroup, createUsers, deleteUserFromGroup, getGroups, getUsersByAllGroups, getUsersByAllUsers, updateGroup, updateUserGroupMembership, updateUserProfile } from '../controller/AdminController';
+import { createGroup, createUsers, deleteUserController, deleteUserFromGroup, getGroups, getUsersByAllGroups, getUsersByAllUsers, updateGroup, updateUserGroupMembership, updateUserProfile } from '../controller/AdminController';
 const router = express.Router();
 
 
@@ -8,6 +8,7 @@ router.get('/user/alluser',getUsersByAllUsers)
 router.put('/user/:id/profile',updateUserProfile);
 router.put('/groupupdatebyadmin',updateUserGroupMembership)
 router.delete('/groupremovebyadmin',deleteUserFromGroup)
+router.delete('/deleteuser',deleteUserController)
 
 router.post('/group/create',createGroup);
 router.get('/groups',getGroups)
