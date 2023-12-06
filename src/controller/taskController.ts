@@ -3,7 +3,7 @@ import { Request, Response, response } from 'express';
 import axios from 'axios';
 
 import { getCamundaApiUrl, getCamundaCredentials } from '../common';
-import fs from 'fs'; 
+import fs from 'fs';
 import path from 'path';
 
 
@@ -85,12 +85,12 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
 
       if (taskVariablesResponse.status === 200) {
         const taskVariables = taskVariablesResponse.data;
-        
+
         // const mergedResponse = { taskDetail, taskVariables };
         const taskDefinitionKey = taskDetail.taskDefinitionKey;
-        const updateTaskDetailResponse = await updateTaskDetailByTaskDefinitionKey(res,taskDefinitionKey);
-        return res.status(200).json({taskDetail,taskVariables,...updateTaskDetailResponse});
-      } 
+        const updateTaskDetailResponse = await updateTaskDetailByTaskDefinitionKey(res, taskDefinitionKey);
+        return res.status(200).json({ taskDetail, taskVariables, ...updateTaskDetailResponse });
+      }
     }
   } catch (error: any) {
     console.error("Error retrieving task details:", error.message);
@@ -98,7 +98,40 @@ export const getTaskDetailById = async (req: Request, res: Response) => {
   }
 };
 
-export const updateTaskDetailByTaskDefinitionKey = async (res: Response,taskDefinitionKey:any) => {
+
+
+export const getCompletedTaskDetails = async (req: Request, res: Response) => {
+  try {
+    const camundaApiUrl = getCamundaApiUrl();
+    const { username, password } = getCamundaCredentials();
+
+    const taskDetailUrl = `${camundaApiUrl}/history/task?finished=true`;
+
+    // Authenticate with Camunda API using Basic Authentication
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString("base64")}`;
+
+    // Make an HTTP GET request to retrieve completed task details
+    const taskDetailResponse = await axios.get(taskDetailUrl, {
+      headers: {
+        Authorization: authHeader,
+      },
+    });
+
+    if (taskDetailResponse.status === 200) {
+      const completedTaskDetails = taskDetailResponse.data;
+
+      // Additional processing if needed...
+
+      return res.status(200).json({ completedTaskDetails });
+    }
+  } catch (error: any) {
+    console.error("Error retrieving completed task details:", error.message);
+    res.status(500).json({ error: "Failed to retrieve completed task details" });
+  }
+};
+
+
+export const updateTaskDetailByTaskDefinitionKey = async (res: Response, taskDefinitionKey: any) => {
   try {
     // const taskDefinitionKey = req.query.taskDefinitionKey as string;
     const fileName = `${taskDefinitionKey}.json`;
@@ -106,11 +139,11 @@ export const updateTaskDetailByTaskDefinitionKey = async (res: Response,taskDefi
     if (!taskDefinitionKey) {
       throw new Error("Task definition key query parameter is missing.");
     }
-    
+
     const jsonDataPath = path.join(__dirname, '..', 'data', fileName);
     const updatedData = JSON.parse(fs.readFileSync(jsonDataPath, 'utf8'));
 
-    return { updatedData }; 
+    return { updatedData };
   } catch (error: any) {
     console.error("Error updating task details:", error.message);
     return { error: "Failed to update task details" };
@@ -292,16 +325,9 @@ export const completeTaskById = async (req: Request, res: Response) => {
     // Variables to complete the task with
     const taskCompletionData = {
       variables: {
-        aVariable: {
-          value: "aStringValue",
-        },
-        anotherVariable: {
-          value: 42,
-        },
-        aThirdVariable: {
-          value: true,
-        },
-      },
+        "variables":
+          { "aVariable": { "value": "aStringValue" } }
+      }
     };
 
     // Make an HTTP POST request to complete the task with variables
@@ -320,6 +346,7 @@ export const completeTaskById = async (req: Request, res: Response) => {
     }
   } catch (error: any) {
     console.error("Error completing task with variables:", error.message);
+    console.error("Response details:", error.response ? error.response.data : "No response");
     res.status(500).json({ error: "Failed to complete the task with variables" });
   }
 };
@@ -335,7 +362,7 @@ export const listTasksByCandidateGroup = async (req: Request, res: Response) => 
     const { username, password } = getCamundaCredentials();
     const listTasksUrl = `${camundaApiUrl}/task/?withCandidateGroups=true`;
 
-    const authHeader =  `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;;
+    const authHeader = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;;
 
     const response = await axios.get(listTasksUrl, {
       headers: {
@@ -564,7 +591,7 @@ export const getHistoryOperation = async (req: Request, res: Response) => {
       const camundaResponseData = response.data;
 
       // Transform the Camunda API response into the desired format
-      
+
 
       res.status(200).json(camundaResponseData);
     } else {
@@ -669,42 +696,42 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
       const camundaResponseData = response.data.bpmn20Xml;
       // console.log('Received BPMN XML:', camundaResponseData);
 
-    //   // Embed HTML and JavaScript to render BPMN diagram
-    //   const html = `
-    //   <!DOCTYPE html>
-    //   <html>
-    //     <head>
-    //       <title>BPMN Diagram</title>
-    //       <script src="https://cdn.jsdelivr.net/npm/bpmn-js/dist/bpmn-viewer.production.min.js"></script>
-    //       <style>
-    //         #bpmn-container {
-    //           height: 500px;
-    //         }
-    //       </style>
-    //     </head>
-    //     <body>
-    //       <div id="bpmn-container"></div>
-    //       <script>
-    //         const container = document.getElementById('bpmn-container');
-    //         const viewer = new BpmnJS({
-    //           container,
-    //           width: '100%',
-    //           height: '100%',
-    //         });
-    //         viewer.importXML(${JSON.stringify(camundaResponseData)}, (err) => {
-    //           if (err) {
-    //             console.error('Error rendering BPMN diagram:', err);
-    //             console.error('BPMN XML:', ${JSON.stringify(camundaResponseData)}); // Log the BPMN XML for debugging
-    //           } else {
-    //             console.log('BPMN diagram rendered successfully.');
-    //           }
-    //         });
-            
-            
-    //       </script>
-    //     </body>
-    //   </html>
-    // `;
+      //   // Embed HTML and JavaScript to render BPMN diagram
+      //   const html = `
+      //   <!DOCTYPE html>
+      //   <html>
+      //     <head>
+      //       <title>BPMN Diagram</title>
+      //       <script src="https://cdn.jsdelivr.net/npm/bpmn-js/dist/bpmn-viewer.production.min.js"></script>
+      //       <style>
+      //         #bpmn-container {
+      //           height: 500px;
+      //         }
+      //       </style>
+      //     </head>
+      //     <body>
+      //       <div id="bpmn-container"></div>
+      //       <script>
+      //         const container = document.getElementById('bpmn-container');
+      //         const viewer = new BpmnJS({
+      //           container,
+      //           width: '100%',
+      //           height: '100%',
+      //         });
+      //         viewer.importXML(${JSON.stringify(camundaResponseData)}, (err) => {
+      //           if (err) {
+      //             console.error('Error rendering BPMN diagram:', err);
+      //             console.error('BPMN XML:', ${JSON.stringify(camundaResponseData)}); // Log the BPMN XML for debugging
+      //           } else {
+      //             console.log('BPMN diagram rendered successfully.');
+      //           }
+      //         });
+
+
+      //       </script>
+      //     </body>
+      //   </html>
+      // `;
 
       res.status(200).send(camundaResponseData);
     } else {
@@ -722,7 +749,7 @@ export const getProcessDefinitionXml = async (req: Request, res: Response) => {
 
 export const userLogin = async (req: Request, res: Response) => {
   try {
-   // Use the common functionality
+    // Use the common functionality
     const camundaApiUrl = getCamundaApiUrl();
     // const { username, password } = getCamundaCredentials();
 

@@ -1,5 +1,5 @@
 import express, { Router } from 'express';
-import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails,  getProcessDefinitionXml, listTasksByCandidateGroup } from '../controller/taskController';
+import {  claimTask, completeTaskById, getTaskDetailById, getTasksForUser, unclaimTask, getTaskComment, getHistoryOperation, getHistoricIdentityLink, getIdentityGroup, userLogin, getTaskDetailByProcessInstance, updateTaskDetail, updateTaskDetailByTaskDefinitionKey, getTaskDataByTaskDefinitionKey, getHistoricalTaskDetails,  getProcessDefinitionXml, listTasksByCandidateGroup, getCompletedTaskDetails } from '../controller/taskController';
 import { createTaskComment } from '../controller/taskController';
 import { bpmnStartProcess, deployBpmnController, getAllRunningInstances, getProcessInstanceDetails, getTasks, getTasksProcessInstanceForUser } from '../controller/ProcessController';
 import { addTaskForm, addTaskForm1, getTaskDetails, getTaskForm, getTaskForm1, getTaskRenderedFormById } from '../controller/formController';
@@ -37,6 +37,7 @@ router.get('/gettaskdata',getTaskDataByTaskDefinitionKey)
 
 
 router.get("/task",getTaskDetailById)
+router.get("/tasks/complete",getCompletedTaskDetails)
 router.post("/task/complete",completeTaskById)
 router.get('/tasks/candidate-group', listTasksByCandidateGroup);
 router.post("/task/claim",claimTask)
